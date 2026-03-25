@@ -1,12 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="api.js"></script>
     <title>WaniKani Vocab Practice</title>
 </head>
+
 <body>
-    
+    <h1>WaniKani Vocab Practice</h1>
+    <div id="startArea">
+        <label>
+            <input type="radio" name="status" value="levels" checked> Levels
+        </label>
+
+        <label>
+            <input type="radio" name="status" value="lessons"> In Lessons
+        </label>
+
+        <label>
+            <input type="radio" name="status" value="critical"> Critical
+        </label>
+        From Lvl: <input type="number" min="1" max="60" step="1" required>
+        To Lvl: <input type="number" min="1" max="60" step="1" required>
+        <button id="startBtn">Start Practice</button>
+    </div>
+
+    <div id="vocabArea">
+        <div id="sentence-jp">名字は「田中」です。</div>
+        <div id="sentence-en">My surname is "Tanaka."</div>
+    </div>
+    <div id="buttons">
+        <button id="showAnswer">Show Answer</button>
+        <button id="nextSentence">Next Sentence</button>
+        <button id="reset">Reset</button>
+        <button id="hintBtn">Show Hint</button>
+    </div>
+    <div id="hintArea">
+        <h2 id="characters">名字</h2>
+        <div id="readings">Readings: みょうじ</div>
+        <div id="meanings">Meaning(s): <span class="mainMeaning">Surname, </span><span class="altMeanings">Last Name,
+                Family Name</span></div>
+        <div id="wordTypes">intransitive verb, ichidan verb</div>
+    </div>
 </body>
+
 </html>
