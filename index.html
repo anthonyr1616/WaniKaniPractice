@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="api.js"></script>
-    <script src="script.js"></script>
+    <script type="module"  src="script.js" defer></script>
     <link rel="stylesheet" href="styles.css">
 
     <title>WaniKani Vocab Practice</title>
@@ -14,88 +13,99 @@
 <body>
     <header class="header">
         <h1>WaniKani Vocab Practice</h1>
+        <img src="resources/settings.svg" alt="Settings" class="clickable-icon" id="settings-btn">
     </header>
-    <div id="startArea">
-        <div class="radio-group">
-            <label>
-                <input type="radio" name="status" value="levels" checked> Levels
-            </label>
 
-            <label>
-                <input type="radio" name="status" value="lessons"> Lessons
-            </label>
-
-            <label>
-                <input type="radio" name="status" value="critical"> Critical
-            </label>
-        </div>
-
-        <div class="levelsRange">
-            <div class="input-row">
-                <label for="fromLvl">From Lvl:</label>
-                <input id="fromLvl" type="number" min="1" max="60" step="1" required>
+    <div class="main">
+        <div id="hintArea">
+            <h2 id="characters">名字</h2>
+            <div id="readings" class="hint-item ">
+                <span class="label">Readings:</span> みょうじ
             </div>
-            <div class="input-row">
-                <label for="toLvl">To Lvl:</label>
-                <input id="toLvl" type="number" min="1" max="60" step="1" required>
+            <div id="meanings" class="hint-item ">
+                <span class="label">Meaning(s):</span>
+                <span class="mainMeaning">Surname</span>,
+                <span class="altMeanings">Last Name, Family Name</span>
+            </div>
+            <div id="wordTypes" class="hint-item ">
+                <span class="label">Type:</span> intransitive verb, ichidan verb
             </div>
         </div>
-
-        <div class="lessonsRange">
-            <div class="input-row">
-                <label for="daysInput">Days:</label>
-                <input id="daysInput" type="number" min="1" max="31" step="1" required>
+        <div class="vocab-area">
+            <div class="sentence-jp">名字は「田中」です。</div>
+            <div class="answer">
+                <div class="sentence-kana">みょうじ は「 たなか」 です。</div>
+                <div class="sentence-en">My surname is "Tanaka".</div>
             </div>
         </div>
-
-        <button id="startBtn">Start Practice</button>
-    </div>
-    <div id="hintArea">
-        <h2 id="characters">名字</h2>
-
-        <div id="readings" class="hint-item hidden">
-            <span class="label">Readings:</span> みょうじ
-        </div>
-
-        <div id="meanings" class="hint-item hidden">
-            <span class="label">Meaning(s):</span>
-            <span class="mainMeaning">Surname</span>,
-            <span class="altMeanings">Last Name, Family Name</span>
-        </div>
-
-        <div id="wordTypes" class="hint-item hidden">
-            <span class="label">Type:</span> intransitive verb, ichidan verb
+        <div id="buttons">
+            <button id="showAnswer">Show Answer</button>
+            <button id="hintBtn">Show Hint</button>
+            <button id="reset">Reset</button>
+            <button id="nextSentence">Next Sentence</button>
         </div>
     </div>
 
-    <div class="vocab-area">
-        <div class="sentence-jp">名字は「田中」です。</div>
-        <div class="answer">
-            <div class="sentence-kana">みょうじ は「 たなか」 です。</div>
-            <div class="sentence-en">My surname is "Tanaka".</div>
-        </div>
-    </div>
-
-    <div id="buttons">
-        <button id="showAnswer">Show Answer</button>
-        <button id="hintBtn">Show Hint</button>
-        <button id="reset">Reset</button>
-        <button id="nextSentence">Next Sentence</button>
-    </div>
-
-    <div class="modal-overlay">
+    <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal">
             <h3>Settings</h3>
 
             <div class="setting-item">
-                <label for="apiToken">WaniKani API Token</label>
-                <input type="text" id="apiToken" placeholder="Enter your API token">
+                <label for="api-token">WaniKani API Token</label>
+                <input type="text" id="api-token" maxlength="50" placeholder="Enter your API token">
+            </div>
+
+            <div class="setting-item">
+                <label for="sentenceFont">Sentence Font</label>
+                <select id="sentenceFont">
+                    <option value="random">Random</option>
+                    <option value="sans-serif">Sans-serif</option>
+                    <option value="serif">Serif</option>
+                    <option value="monospace">Monospace</option>
+                </select>
             </div>
 
             <div class="modal-actions">
                 <button class="cancel-btn">Cancel</button>
                 <button class="save-btn">Save</button>
             </div>
+        </div>
+    </div>
+
+
+    <div id="start-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="status" value="levels" checked> Levels
+                </label>
+                <label>
+                    <input type="radio" name="status" value="lessons"> Lessons
+                </label>
+                <label>
+                    <input type="radio" name="status" value="critical"> Critical
+                </label>
+            </div>
+
+            <div class="levelsRange">
+                <div class="input-row">
+                    <label for="fromLvl">From Lvl:</label>
+                    <input id="fromLvl" type="number" min="1" max="60" step="1" required>
+                </div>
+                <div class="input-row">
+                    <label for="toLvl">To Lvl:</label>
+                    <input id="toLvl" type="number" min="1" max="60" step="1" required>
+                </div>
+            </div>
+
+            <div class="lessonsRange">
+                <div class="input-row">
+                    <label for="daysInput">Days:</label>
+                    <input id="daysInput" type="number" min="1" max="31" step="1" required>
+                </div>
+            </div>
+
+            <button id="startBtn">Start Practice</button>
         </div>
     </div>
 </body>
