@@ -8,7 +8,11 @@ function setApiTokenInCache(token) {
   localStorage.setItem("apiToken", token);
 }
 
-async function getVocabByLevelWindow(levels) {
+function clearApiTokenFromCache() {
+  localStorage.removeItem("apiToken");
+}
+
+async function getVocabByLevels(levels) {
   const apiToken = getApiTokenFromCache();
   let url = `https://api.wanikani.com/v2/subjects?types=vocabulary&levels=${levels.join(",")}`;
 
@@ -18,7 +22,7 @@ async function getVocabByLevelWindow(levels) {
     },
   });
 
-  const data = await response.json(); 
+  const data = await response.json();
 
   return data.data.map((vocabData) => new Vocab(vocabData));
 }
