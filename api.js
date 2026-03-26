@@ -41,3 +41,5 @@ class Vocab {
     }));
   }
 }
+
+export { getApiTokenFromCache, setApiTokenInCache, clearApiTokenFromCache, getVocabByLevels, Vocab };
