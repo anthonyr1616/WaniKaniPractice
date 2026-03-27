@@ -1,0 +1,24 @@
+{
+  "name": "wanikanipractice",
+  "version": "1.0.0",
+  "description": "Tool for practicing japanese vocab from WaniKani lessons.",
+  "homepage": "https://github.com/anthonyr1616/WaniKaniPractice#readme",
+  "bugs": {
+    "url": "https://github.com/anthonyr1616/WaniKaniPractice/issues"
+  },
+  "license": "ISC",
+  "author": "",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.0.1"
+  },
+  "dependencies": {
+    "kuroshiro-browser": "^0.1.0"
+  }
+}
