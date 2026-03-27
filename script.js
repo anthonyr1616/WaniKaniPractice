@@ -44,8 +44,14 @@ async function startPractice() {
   const sentences = flattenVocabData(vocabData).sort(() => Math.random() - 0.5);
   console.log("Flattened and shuffled sentences:", sentences);
 
+  const setupArea = document.querySelector(".setup-area");
+  const main = document.querySelector(".main");
+
+  setupArea.classList.add("hidden");
+  main.classList.remove("hidden");
+
   const nextSentence = sentences.find((s) => !s.seen);
-  updateVocabDisplay(nextSentence);
+  await updateVocabDisplay(nextSentence);
   updateHintDisplay(nextSentence);
 }
 
@@ -76,9 +82,9 @@ const readings = hintArea.querySelector(".readings .hint-text");
 const meanings = hintArea.querySelector(".meanings .hint-text");
 const wordTypes = hintArea.querySelector(".wordTypes .hint-text");
 
-function updateVocabDisplay(sentence) {
+async function updateVocabDisplay(sentence) {
   jpSentence.textContent = sentence.japanese;
-  kanaSentence.textContent = sentence.kana;
+  kanaSentence.textContent = "Need package to convert to kana"; // TODO: Convert to kana using kurosiro or wanakana
   enSentence.textContent = sentence.english;
 }
 
@@ -91,11 +97,45 @@ function updateHintDisplay(sentence) {
 
 const setupBtn = document.querySelector(".setup-btn");
 setupBtn.addEventListener("click", () => {
-  openModal("start-modal");
+  openSetupModal();
 });
 
 const startBtn = document.getElementById("start-btn");
 startBtn.addEventListener("click", () => {
   closeModal("start-modal");
   startPractice();
+});
+
+function openSetupModal() {
+  openModal("start-modal");
+  updateSetupModal();
+}
+
+function updateSetupModal() {
+  const levelSelection = document.querySelector(
+    'input[name="practice-type"]:checked',
+  ).value;
+
+  const levelsRange = document.querySelector("#start-modal .levels-range");
+  const daysRange = document.querySelector("#start-modal .days-range");
+
+  if (levelSelection === "levels") {
+    levelsRange.classList.remove("hidden");
+    daysRange.classList.add("hidden");
+  } else if (levelSelection === "days") {
+    levelsRange.classList.add("hidden");
+    daysRange.classList.remove("hidden");
+  } else {
+    levelsRange.classList.add("hidden");
+    daysRange.classList.add("hidden");
+  }
+}
+
+const group = document.querySelector(".radio-group");
+
+group.addEventListener("change", (e) => {
+  if (e.target.name === "practice-type") {
+    console.log("Selected:", e.target.value);
+    updateSetupModal();
+  }
 });
