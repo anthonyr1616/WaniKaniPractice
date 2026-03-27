@@ -128,13 +128,13 @@
   background: #45a049;
 }
 
-.levelsRange {
+.levels-range {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.lessonsRange {
+.lessons-range {
   display: flex;
   flex-direction: column;
   gap: 16px;

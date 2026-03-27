@@ -17,7 +17,7 @@
     </header>
 
     <div class="setup-area">
-        <button class="setup-btn">Start</button>
+        <button class="setup-btn">Setup</button>
     </div>
 
     <div class="main hidden">
@@ -83,31 +83,31 @@
         <div class="modal">
             <div class="radio-group">
                 <label>
-                    <input type="radio" name="status" value="levels" checked> Levels
+                    <input type="radio" name="practice-type" value="levels" checked> Levels
                 </label>
                 <label>
-                    <input type="radio" name="status" value="lessons"> Lessons
+                    <input type="radio" name="practice-type" value="days"> Lessons
                 </label>
                 <label>
-                    <input type="radio" name="status" value="critical"> Critical
+                    <input type="radio" name="practice-type" value="critical"> Critical
                 </label>
             </div>
 
-            <div class="levelsRange">
+            <div class="levels-range hidden">
                 <div class="input-row">
-                    <label for="fromLvl">From Lvl:</label>
-                    <input id="fromLvl" type="number" min="1" max="60" step="1" required>
+                    <label for="from-lvl">From Lvl:</label>
+                    <input id="from-lvl" type="number" min="1" max="60" step="1" value="1">
                 </div>
                 <div class="input-row">
-                    <label for="toLvl">To Lvl:</label>
-                    <input id="toLvl" type="number" min="1" max="60" step="1" required>
+                    <label for="to-lvl">To Lvl:</label>
+                    <input id="to-lvl" type="number" min="1" max="60" step="1" value="5">
                 </div>
             </div>
 
-            <div class="lessonsRange">
+            <div class="days-range hidden">
                 <div class="input-row">
-                    <label for="daysInput">Days:</label>
-                    <input id="daysInput" type="number" min="1" max="31" step="1" required>
+                    <label for="days-input">Days:</label>
+                    <input id="days-input" type="number" min="1" max="31" step="1">
                 </div>
             </div>
 
