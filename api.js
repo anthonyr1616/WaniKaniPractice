@@ -12,6 +12,16 @@ function clearApiTokenFromCache() {
   localStorage.removeItem("apiToken");
 }
 
+// TODO: Not sure if this works
+async function checkApiTokenValidity(token) {
+  const response = await fetch("https://api.wanikani.com/v2/user", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.ok;
+}
+
 async function getVocabByLevels(levels) {
   const apiToken = getApiTokenFromCache();
   let url = `https://api.wanikani.com/v2/subjects?types=vocabulary&levels=${levels.join(",")}`;
@@ -42,4 +52,11 @@ class Vocab {
   }
 }
 
-export { getApiTokenFromCache, setApiTokenInCache, clearApiTokenFromCache, getVocabByLevels, Vocab };
+export {
+  getApiTokenFromCache,
+  setApiTokenInCache,
+  clearApiTokenFromCache,
+  checkApiTokenValidity,
+  getVocabByLevels,
+  Vocab,
+};
