@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module"  src="script.js" defer></script>
+    <script type="module" src="script.js" defer></script>
     <link rel="stylesheet" href="styles.css">
 
     <title>WaniKani Vocab Practice</title>
@@ -16,19 +16,26 @@
         <img src="resources/settings.svg" alt="Settings" class="clickable-icon" id="settings-btn">
     </header>
 
-    <div class="main">
-        <div id="hintArea">
-            <h2 id="characters">名字</h2>
-            <div id="readings" class="hint-item ">
-                <span class="label">Readings:</span> みょうじ
+    <div class="setup-area">
+        <button class="setup-btn">Start</button>
+    </div>
+
+    <div class="main hidden">
+        <div class="hint-area">
+            <h2 class="characters">
+                <div class="hint-text">名字</div>
+            </h2>
+            <div class="readings" class="hint-item ">
+                <span class="hint-label">Readings:</span>
+                <span class="hint-text">みょうじ</span>
             </div>
-            <div id="meanings" class="hint-item ">
-                <span class="label">Meaning(s):</span>
-                <span class="mainMeaning">Surname</span>,
-                <span class="altMeanings">Last Name, Family Name</span>
+            <div class="meanings" class="hint-item ">
+                <span class="hint-label">Meaning(s):</span>
+                <span class="hint-text">Surname</span>
             </div>
-            <div id="wordTypes" class="hint-item ">
-                <span class="label">Type:</span> intransitive verb, ichidan verb
+            <div class="wordTypes" class="hint-item ">
+                <span class="hint-label">Type:</span>
+                <span class="hint-text">intransitive verb, ichidan verb</span>
             </div>
         </div>
         <div class="vocab-area">
@@ -72,7 +79,6 @@
         </div>
     </div>
 
-
     <div id="start-modal" class="modal-overlay hidden">
         <div class="modal">
             <div class="radio-group">
@@ -105,7 +111,7 @@
                 </div>
             </div>
 
-            <button id="startBtn">Start Practice</button>
+            <button id="start-btn">Start Practice</button>
         </div>
     </div>
 </body>
