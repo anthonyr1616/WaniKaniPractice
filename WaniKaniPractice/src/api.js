@@ -37,6 +37,52 @@ async function getVocabByLevels(levels) {
   return data.data.map((vocabData) => new Vocab(vocabData));
 }
 
+async function getVocabAvailableAtDate(date) {
+  const apiToken = getApiTokenFromCache();
+  let url = `https://api.wanikani.com/v2/subjects?subject_types=vocabulary&available_after=${date.toISOString()}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+  });
+
+  const data = await response.json();
+
+  return data.data.map((vocabData) => new Vocab(vocabData));
+}
+
+async function getCriticalVocab() {
+  const apiToken = getApiTokenFromCache();
+  let url = `https://api.wanikani.com/v2/review_statistics?subject_types=vocabulary&percentages_less_than=75`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+  });
+
+  const data = await response.json();
+  const subjectsIds = data.data.map((stat) => stat.data.subject_id);
+
+  return getVocabByIds(subjectsIds);
+}
+
+async function getVocabByIds(ids) {
+  const apiToken = getApiTokenFromCache();
+  let url = `https://api.wanikani.com/v2/subjects?types=vocabulary&ids=${ids.join(",")}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+  });
+
+  const data = await response.json();
+
+  return data.data.map((vocabData) => new Vocab(vocabData));
+}
+
 class Vocab {
   constructor(jsonData) {
     this.id = jsonData.id;
@@ -58,5 +104,7 @@ export {
   clearApiTokenFromCache,
   checkApiTokenValidity,
   getVocabByLevels,
+  getVocabAvailableAtDate,
+  getCriticalVocab,
   Vocab,
 };

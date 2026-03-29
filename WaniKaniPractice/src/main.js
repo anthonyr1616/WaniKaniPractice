@@ -5,6 +5,8 @@ import {
   getApiTokenFromCache,
   setApiTokenInCache,
   getVocabByLevels,
+  getVocabAvailableAtDate,
+  getCriticalVocab,
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
@@ -47,6 +49,7 @@ if (!getApiTokenFromCache()) {
 
 const fromLevelInput = document.getElementById("from-level");
 const toLevelInput = document.getElementById("to-level");
+const daysInput = document.getElementById("days-input");
 
 async function startPractice() {
   let vocabData = [];
@@ -65,8 +68,18 @@ async function startPractice() {
     console.log("Fetched vocab data");
   }
   else if (levelSelection === "days") {
+    // days logic needs to be changed to use date picker
+    const date = range(
+      parseInt(daysInput.value),
+    );
+
+    vocabData = await getVocabAvailableAtDate(date);
+    console.log("Fetched vocab data");
+
   }
   else if (levelSelection === "critical") {
+    vocabData = await getCriticalVocab();
+    console.log("Fetched critical vocab data");
   }
 
   const sentences = flattenVocabData(vocabData).sort(() => Math.random() - 0.5);
