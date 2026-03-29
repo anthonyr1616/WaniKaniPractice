@@ -7,6 +7,8 @@ import {
   getVocabByLevels,
 } from "./api.js";
 
+import { range, normalize } from "./utility.js";
+
 import { Kuroshiro } from "kuroshiro-browser";
 const IS_PROD = true;
 
@@ -43,13 +45,19 @@ if (!getApiTokenFromCache()) {
   apiTokenInput.value = getApiTokenFromCache();
 }
 
+const fromLevelInput = document.getElementById("from-level");
+const toLevelInput = document.getElementById("to-level");
+
 async function startPractice() {
-  const levels = [1]; // Example levels, can be made dynamic later
+  const levels = range(
+    parseInt(fromLevelInput.value),
+    parseInt(toLevelInput.value),
+  );
   let vocabData = await getVocabByLevels(levels);
-  console.log("Fetched vocab data:", vocabData);
+  console.log("Fetched vocab data");
 
   const sentences = flattenVocabData(vocabData).sort(() => Math.random() - 0.5);
-  console.log("Flattened and shuffled sentences:", sentences);
+  console.log("Flattened and shuffled sentences");
 
   const setupArea = document.querySelector(".setup-area");
   const main = document.querySelector(".main");
@@ -109,8 +117,25 @@ setupBtn.addEventListener("click", () => {
   openSetupModal();
 });
 
+const levelsRange = document.querySelector("#start-modal .levels-range");
+const daysRange = document.querySelector("#start-modal .days-range");
+
 const startBtn = document.getElementById("start-btn");
 startBtn.addEventListener("click", () => {
+  if (parseInt(fromLevelInput.value) > parseInt(toLevelInput.value)) {
+    const warning = document.getElementById("start-warning");
+    warning.textContent = "From Level cannot be greater than To Level!";
+    warning.classList.remove("hidden");
+    return;
+  }
+  
+  if (parseInt(fromLevelInput.value) < 1 || parseInt(toLevelInput.value) > 60) {
+    const warning = document.getElementById("start-warning");
+    warning.textContent = "Levels must be between 1 and 60!";
+    warning.classList.remove("hidden");
+    return;
+  }
+
   closeModal("start-modal");
   startPractice();
 });
@@ -124,9 +149,6 @@ function updateSetupModal() {
   const levelSelection = document.querySelector(
     'input[name="practice-type"]:checked',
   ).value;
-
-  const levelsRange = document.querySelector("#start-modal .levels-range");
-  const daysRange = document.querySelector("#start-modal .days-range");
 
   if (levelSelection === "levels") {
     levelsRange.classList.remove("hidden");
@@ -147,4 +169,18 @@ group.addEventListener("change", (e) => {
     console.log("Selected:", e.target.value);
     updateSetupModal();
   }
+});
+
+const inputs = document.querySelectorAll(".number-input");
+
+inputs.forEach((input) => {
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "." || e.key === ",") {
+      e.preventDefault();
+    }
+  });
+
+  input.addEventListener("input", () => normalize(input));
+
+  input.addEventListener("blur", () => normalize(input));
 });
