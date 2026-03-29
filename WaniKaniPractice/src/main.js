@@ -1,17 +1,18 @@
 import "./style.css";
 
-// Can improve this, this is just quick and dirty
 import {
-  getApiTokenFromCache,
-  setApiTokenInCache,
+  getApiToken,
+  setApiToken,
   getVocabByLevels,
   getVocabAvailableAtDate,
   getCriticalVocab,
+  checkApiTokenValidity,
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
 
 import { Kuroshiro } from "kuroshiro-browser";
+
 const IS_PROD = true;
 
 const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(IS_PROD);
@@ -34,17 +35,17 @@ settingsBtn.addEventListener("click", () => openModal("settings-modal"));
 cancelBtn.addEventListener("click", () => closeModal("settings-modal"));
 saveBtn.addEventListener("click", () => {
   const apiToken = document.getElementById("api-token").value;
-  setApiTokenInCache(apiToken);
+  setApiToken(apiToken);
   closeModal("settings-modal");
 });
 
 const apiTokenInput = document.getElementById("api-token");
-if (!getApiTokenFromCache()) {
+if (!getApiToken()) {
   console.log("No API token found in cache. Requesting token from user.");
   openModal("settings-modal");
 } else {
   console.log("API token found in cache.");
-  apiTokenInput.value = getApiTokenFromCache();
+  apiTokenInput.value = getApiToken();
 }
 
 const fromLevelInput = document.getElementById("from-level");
