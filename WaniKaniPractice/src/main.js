@@ -49,12 +49,25 @@ const fromLevelInput = document.getElementById("from-level");
 const toLevelInput = document.getElementById("to-level");
 
 async function startPractice() {
-  const levels = range(
-    parseInt(fromLevelInput.value),
-    parseInt(toLevelInput.value),
-  );
-  let vocabData = await getVocabByLevels(levels);
-  console.log("Fetched vocab data");
+  let vocabData = [];
+
+  const levelSelection = document.querySelector(
+    'input[name="practice-type"]:checked',
+  ).value;
+
+  if (levelSelection === "levels") {
+    const levels = range(
+      parseInt(fromLevelInput.value),
+      parseInt(toLevelInput.value),
+    );
+
+    vocabData = await getVocabByLevels(levels);
+    console.log("Fetched vocab data");
+  }
+  else if (levelSelection === "days") {
+  }
+  else if (levelSelection === "critical") {
+  }
 
   const sentences = flattenVocabData(vocabData).sort(() => Math.random() - 0.5);
   console.log("Flattened and shuffled sentences");
@@ -122,18 +135,27 @@ const daysRange = document.querySelector("#start-modal .days-range");
 
 const startBtn = document.getElementById("start-btn");
 startBtn.addEventListener("click", () => {
-  if (parseInt(fromLevelInput.value) > parseInt(toLevelInput.value)) {
-    const warning = document.getElementById("start-warning");
-    warning.textContent = "From Level cannot be greater than To Level!";
-    warning.classList.remove("hidden");
-    return;
-  }
-  
-  if (parseInt(fromLevelInput.value) < 1 || parseInt(toLevelInput.value) > 60) {
-    const warning = document.getElementById("start-warning");
-    warning.textContent = "Levels must be between 1 and 60!";
-    warning.classList.remove("hidden");
-    return;
+  const levelSelection = document.querySelector(
+    'input[name="practice-type"]:checked',
+  ).value;
+
+  if (levelSelection == "levels") {
+    if (parseInt(fromLevelInput.value) > parseInt(toLevelInput.value)) {
+      const warning = document.getElementById("start-warning");
+      warning.textContent = "From Level cannot be greater than To Level!";
+      warning.classList.remove("hidden");
+      return;
+    }
+
+    if (
+      parseInt(fromLevelInput.value) < 1 ||
+      parseInt(toLevelInput.value) > 60
+    ) {
+      const warning = document.getElementById("start-warning");
+      warning.textContent = "Levels must be between 1 and 60!";
+      warning.classList.remove("hidden");
+      return;
+    }
   }
 
   closeModal("start-modal");
