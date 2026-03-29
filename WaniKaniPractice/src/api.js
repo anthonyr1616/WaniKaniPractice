@@ -37,9 +37,9 @@ async function getVocabByLevels(levels) {
   return data.data.map((vocabData) => new Vocab(vocabData));
 }
 
-async function getVocabAvailableAtDate(date) {
+async function getVocabAvailableAtDate(after, before) {
   const apiToken = getApiTokenFromCache();
-  let url = `https://api.wanikani.com/v2/subjects?subject_types=vocabulary&available_after=${date.toISOString()}`;
+  let url = `https://api.wanikani.com/v2/assignments?subject_types=vocabulary&available_after=${after.toISOString()}&available_before=${before.toISOString()}&burned=false`;
 
   const response = await fetch(url, {
     headers: {
@@ -49,7 +49,8 @@ async function getVocabAvailableAtDate(date) {
 
   const data = await response.json();
 
-  return data.data.map((vocabData) => new Vocab(vocabData));
+  const subjectsIds = data.data.map((assignment) => assignment.data.subject_id);
+  return getVocabByIds(subjectsIds);
 }
 
 async function getCriticalVocab() {

@@ -49,7 +49,16 @@ if (!getApiTokenFromCache()) {
 
 const fromLevelInput = document.getElementById("from-level");
 const toLevelInput = document.getElementById("to-level");
-const daysInput = document.getElementById("days-input");
+const atDate = document.getElementById("at-date");
+const today = new Date();
+const oneWeekLater = new Date();
+oneWeekLater.setDate(today.getDate() + 7);
+const formatDate = (date) => date.toISOString().split("T")[0];
+const todayStr = formatDate(today);
+const maxStr = formatDate(oneWeekLater);
+atDate.value = todayStr;
+atDate.min = todayStr;
+atDate.max = maxStr;
 
 async function startPractice() {
   let vocabData = [];
@@ -66,18 +75,13 @@ async function startPractice() {
 
     vocabData = await getVocabByLevels(levels);
     console.log("Fetched vocab data");
-  }
-  else if (levelSelection === "days") {
-    // days logic needs to be changed to use date picker
-    const date = range(
-      parseInt(daysInput.value),
-    );
-
-    vocabData = await getVocabAvailableAtDate(date);
+  } else if (levelSelection === "days") {
+    const dateStr = atDate.value;
+    const [year, month, day] = dateStr.split("-");
+    const fromDate = new Date(year, month - 1, day, 23, 59, 0);
+    vocabData = await getVocabAvailableAtDate(new Date(), fromDate);
     console.log("Fetched vocab data");
-
-  }
-  else if (levelSelection === "critical") {
+  } else if (levelSelection === "critical") {
     vocabData = await getCriticalVocab();
     console.log("Fetched critical vocab data");
   }
