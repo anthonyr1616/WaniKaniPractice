@@ -333,3 +333,47 @@
   padding: 0.5rem 1rem;
   border-radius: 6px;
 }
+
+.font-kosugi-maru {
+  font-family: "Kosugi Maru", Georgia, "Times New Roman", serif;
+}
+
+.font-m-plus-1p {
+  font-family: "M PLUS 1p", Georgia, "Times New Roman", serif;
+}
+
+.font-noto-sans-jp {
+  font-family: "Noto Sans JP", Georgia, "Times New Roman", serif;
+}
+
+.font-noto-serif-jp {
+  font-family: "Noto Serif JP", Georgia, "Times New Roman", serif;
+}
+
+.font-shippori-mincho {
+  font-family: "Shippori Mincho B1", Georgia, "Times New Roman", serif;
+}
+
+.font-yuji-syuku {
+  font-family: "Yuji Syuku", Georgia, "Times New Roman", serif;
+}
+
+.font-zen-antique {
+  font-family: "Zen Antique", Georgia, "Times New Roman", serif;
+}
+
+.font-zen-maru-gothic {
+  font-family: "Zen Maru Gothic", Georgia, "Times New Roman", serif;
+}
+
+.font-georgia {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.font-times-new-roman {
+  font-family: "Times New Roman", Georgia, serif;
+}
+
+.font-serif {
+  font-family: serif;
+}
