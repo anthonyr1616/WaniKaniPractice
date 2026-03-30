@@ -6,221 +6,302 @@ import {
   getVocabByLevels,
   getVocabAvailableAtDate,
   getCriticalVocab,
-  checkApiTokenValidity,
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
-
 import { Kuroshiro } from "kuroshiro-browser";
 
-const IS_PROD = true;
+const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(true);
 
-const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(IS_PROD);
+// Element references
+const el = {
+  settingsBtn: document.getElementById("settings-btn"),
+  saveBtn: document.querySelector("#settings-modal .save-btn"),
+  cancelBtn: document.querySelector("#settings-modal .cancel-btn"),
+  apiTokenInput: document.getElementById("api-token"),
 
-const openModal = (id) =>
-  document.getElementById(id).classList.remove("hidden");
-const closeModal = (id) => document.getElementById(id).classList.add("hidden");
+  fromLevel: document.getElementById("from-level"),
+  toLevel: document.getElementById("to-level"),
+  atDate: document.getElementById("at-date"),
 
-document.querySelectorAll(".modal-overlay").forEach((overlay) => {
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) closeModal(overlay.id);
-  });
-});
+  startBtn: document.getElementById("start-btn"),
+  setupBtn: document.querySelector(".setup-btn"),
+  nextSentenceBtn: document.getElementById("next-sentence-btn"),
+  showAnswerBtn: document.getElementById("show-answer-btn"),
+  hintBtn: document.getElementById("hint-btn"),
+  resetBtn: document.getElementById("reset-btn"),
 
-const cancelBtn = document.querySelector("#settings-modal .cancel-btn");
-const saveBtn = document.querySelector("#settings-modal .save-btn");
-const settingsBtn = document.getElementById("settings-btn");
+  setupArea: document.querySelector(".setup-area"),
+  mainArea: document.querySelector(".main"),
 
-settingsBtn.addEventListener("click", () => openModal("settings-modal"));
-cancelBtn.addEventListener("click", () => closeModal("settings-modal"));
-saveBtn.addEventListener("click", () => {
-  const apiToken = document.getElementById("api-token").value;
-  setApiToken(apiToken);
-  closeModal("settings-modal");
-});
+  warning: document.getElementById("start-warning"),
 
-const apiTokenInput = document.getElementById("api-token");
-if (!getApiToken()) {
-  console.log("No API token found in cache. Requesting token from user.");
-  openModal("settings-modal");
-} else {
-  console.log("API token found in cache.");
-  apiTokenInput.value = getApiToken();
-}
+  vocab: {
+    jp: document.querySelector(".sentence-jp"),
+    kana: document.querySelector(".sentence-kana"),
+    en: document.querySelector(".sentence-en"),
+  },
 
-const fromLevelInput = document.getElementById("from-level");
-const toLevelInput = document.getElementById("to-level");
-const atDate = document.getElementById("at-date");
-const today = new Date();
-const oneWeekLater = new Date();
-oneWeekLater.setDate(today.getDate() + 7);
-const formatDate = (date) => date.toISOString().split("T")[0];
-const todayStr = formatDate(today);
-const maxStr = formatDate(oneWeekLater);
-atDate.value = todayStr;
-atDate.min = todayStr;
-atDate.max = maxStr;
+  hint: {
+    characters: document.querySelector(".characters .hint-text"),
+    readings: document.querySelector(".readings .hint-text"),
+    meanings: document.querySelector(".meanings .hint-text"),
+    types: document.querySelector(".wordTypes .hint-text"),
+  },
 
-async function startPractice() {
-  let vocabData = [];
+  levelsRange: document.querySelector("#start-modal .levels-range"),
+  daysRange: document.querySelector("#start-modal .days-range"),
+};
 
-  const levelSelection = document.querySelector(
-    'input[name="practice-type"]:checked',
-  ).value;
+// Initalize UI
+initToken();
+initDateInput();
+initModalOverlay();
+initEvents();
 
-  if (levelSelection === "levels") {
-    const levels = range(
-      parseInt(fromLevelInput.value),
-      parseInt(toLevelInput.value),
-    );
+// #region Init functions
 
-    vocabData = await getVocabByLevels(levels);
-    console.log("Fetched vocab data");
-  } else if (levelSelection === "days") {
-    const dateStr = atDate.value;
-    const [year, month, day] = dateStr.split("-");
-    const fromDate = new Date(year, month - 1, day, 23, 59, 0);
-    vocabData = await getVocabAvailableAtDate(new Date(), fromDate);
-    console.log("Fetched vocab data");
-  } else if (levelSelection === "critical") {
-    vocabData = await getCriticalVocab();
-    console.log("Fetched critical vocab data");
+function initToken() {
+  const token = getApiToken();
+
+  if (!token) {
+    openModal("settings-modal");
+    return;
   }
 
-  const sentences = flattenVocabData(vocabData).sort(() => Math.random() - 0.5);
-  console.log("Flattened and shuffled sentences");
-
-  const setupArea = document.querySelector(".setup-area");
-  const main = document.querySelector(".main");
-
-  setupArea.classList.add("hidden");
-  main.classList.remove("hidden");
-
-  const nextSentence = sentences.find((s) => !s.seen);
-  await updateVocabDisplay(nextSentence);
-  updateHintDisplay(nextSentence);
+  el.apiTokenInput.value = token;
 }
 
-function flattenVocabData(vocabData) {
-  return vocabData.flatMap((vocab) =>
-    vocab.contextSentences.map((sentence) => ({
-      vocab,
-      english: sentence.english,
-      japanese: sentence.japanese,
+function initDateInput() {
+  const today = new Date();
+  const max = new Date();
+  max.setDate(today.getDate() + 7);
+
+  const format = (d) => d.toISOString().split("T")[0];
+
+  el.atDate.value = format(today);
+  el.atDate.min = format(today);
+  el.atDate.max = format(max);
+}
+
+function initModalOverlay() {
+  document.querySelectorAll(".modal-overlay").forEach((overlay) => {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+}
+
+function initEvents() {
+  el.settingsBtn.onclick = () => openModal("settings-modal");
+  el.cancelBtn.onclick = () => closeModal("settings-modal");
+
+  el.saveBtn.onclick = () => {
+    setApiToken(el.apiTokenInput.value);
+    closeModal("settings-modal");
+  };
+
+  el.setupBtn.onclick = openSetupModal;
+  el.startBtn.onclick = onStart;
+  el.nextSentenceBtn.onclick = onNext;
+  el.showAnswerBtn.onclick = onShowAnswer;
+  el.hintBtn.onclick = onHint;
+  el.resetBtn.onclick = onReset;
+
+  document.querySelector(".radio-group").onchange = updateSetupModal;
+
+  document.querySelectorAll(".number-input").forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if ([".", ","].includes(e.key)) e.preventDefault();
+    });
+
+    input.addEventListener("input", () => normalize(input));
+    input.addEventListener("blur", () => normalize(input));
+  });
+}
+
+// #endregion
+
+// #region Practice logic
+let session = null;
+
+async function onStart() {
+  const type = getPracticeType();
+
+  if (!validateInputs(type)) return;
+
+  closeModal("start-modal");
+  await startPractice(type);
+}
+
+async function startPractice(type) {
+  const vocab = await fetchVocab(type);
+  const sentences = shuffle(flatten(vocab));
+
+  session = new PracticeSession(sentences);
+  toggleMainView();
+  toggleAnswer(false);
+  await renderSentence(session.current);
+}
+
+async function onNext() {
+  session.advance();
+  await renderSentence(session.current);
+  hideHints();
+  toggleAnswer(false);
+}
+
+function onShowAnswer() {
+  toggleAnswer(true);
+}
+
+function onHint() {
+  showHints();
+}
+
+function onReset() {
+  session = null;
+  toggleMainView(false);
+}
+
+// #endregion
+
+async function fetchVocab(type) {
+  if (type === "levels") {
+    const levels = range(+el.fromLevel.value, +el.toLevel.value);
+    return getVocabByLevels(levels);
+  }
+
+  if (type === "days") {
+    const [y, m, d] = el.atDate.value.split("-");
+    const end = new Date(y, m - 1, d, 23, 59, 0);
+    return getVocabAvailableAtDate(new Date(), end);
+  }
+
+  return getCriticalVocab();
+}
+
+// #region Transformation helper  methods
+
+function flatten(vocabList) {
+  return vocabList.flatMap((v) =>
+    v.contextSentences.map((s) => ({
+      vocab: v,
+      japanese: s.japanese,
+      english: s.english,
       seen: false,
     })),
   );
 }
 
-function getRandomFont() {
-  const fonts = ["sans-serif", "serif", "monospace"];
-  return fonts[Math.floor(Math.random() * fonts.length)];
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
 
-const vocabArea = document.querySelector(".vocab-area");
-const jpSentence = vocabArea.querySelector(".sentence-jp");
-const kanaSentence = vocabArea.querySelector(".sentence-kana");
-const enSentence = vocabArea.querySelector(".sentence-en");
+// #endregion
 
-const hintArea = document.querySelector(".hint-area");
-const characters = hintArea.querySelector(".characters .hint-text");
-const readings = hintArea.querySelector(".readings .hint-text");
-const meanings = hintArea.querySelector(".meanings .hint-text");
-const wordTypes = hintArea.querySelector(".wordTypes .hint-text");
+// #region Rendering
 
-async function updateVocabDisplay(sentence) {
-  jpSentence.textContent = sentence.japanese;
-  kanaSentence.textContent = await kuroshiro.convert(sentence.japanese, {
+async function renderSentence(sentence) {
+  el.vocab.jp.textContent = sentence.japanese;
+  el.vocab.kana.textContent = await kuroshiro.convert(sentence.japanese, {
     to: "hiragana",
   });
-  enSentence.textContent = sentence.english;
+  el.vocab.en.textContent = sentence.english;
+
+  el.hint.characters.textContent = sentence.vocab.characters;
+  el.hint.readings.textContent = sentence.vocab.readings.join(", ");
+  el.hint.meanings.textContent = sentence.vocab.meanings.join(", ");
+  el.hint.types.textContent = sentence.vocab.partsOfSpeech.join(", ");
 }
 
-function updateHintDisplay(sentence) {
-  characters.textContent = sentence.vocab.characters;
-  readings.textContent = sentence.vocab.readings.join(", ");
-  meanings.textContent = sentence.vocab.meanings.join(", ");
-  wordTypes.textContent = sentence.vocab.partsOfSpeech.join(", ");
+function toggleMainView(showMain = true) {
+  el.setupArea.classList.toggle("hidden", showMain);
+  el.mainArea.classList.toggle("hidden", !showMain);
 }
 
-const setupBtn = document.querySelector(".setup-btn");
-setupBtn.addEventListener("click", () => {
-  openSetupModal();
-});
+function hideHints() {
+  // TODO
+}
 
-const levelsRange = document.querySelector("#start-modal .levels-range");
-const daysRange = document.querySelector("#start-modal .days-range");
+function showHints() {
+  // TODO
+}
 
-const startBtn = document.getElementById("start-btn");
-startBtn.addEventListener("click", () => {
-  const levelSelection = document.querySelector(
-    'input[name="practice-type"]:checked',
-  ).value;
+function toggleAnswer(show) {
+  // TODO
+}
 
-  if (levelSelection == "levels") {
-    if (parseInt(fromLevelInput.value) > parseInt(toLevelInput.value)) {
-      const warning = document.getElementById("start-warning");
-      warning.textContent = "From Level cannot be greater than To Level!";
-      warning.classList.remove("hidden");
-      return;
-    }
+// Modal helpers
+const openModal = (id) =>
+  document.getElementById(id).classList.remove("hidden");
+const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 
-    if (
-      parseInt(fromLevelInput.value) < 1 ||
-      parseInt(toLevelInput.value) > 60
-    ) {
-      const warning = document.getElementById("start-warning");
-      warning.textContent = "Levels must be between 1 and 60!";
-      warning.classList.remove("hidden");
-      return;
-    }
-  }
+// #endregion
 
-  closeModal("start-modal");
-  startPractice();
-});
-
+// #region Setup Modal logic
 function openSetupModal() {
   openModal("start-modal");
   updateSetupModal();
 }
 
 function updateSetupModal() {
-  const levelSelection = document.querySelector(
-    'input[name="practice-type"]:checked',
-  ).value;
+  const type = getPracticeType();
 
-  if (levelSelection === "levels") {
-    levelsRange.classList.remove("hidden");
-    daysRange.classList.add("hidden");
-  } else if (levelSelection === "days") {
-    levelsRange.classList.add("hidden");
-    daysRange.classList.remove("hidden");
-  } else {
-    levelsRange.classList.add("hidden");
-    daysRange.classList.add("hidden");
-  }
+  el.levelsRange.classList.toggle("hidden", type !== "levels");
+  el.daysRange.classList.toggle("hidden", type !== "days");
 }
 
-const group = document.querySelector(".radio-group");
+// #endregion
 
-group.addEventListener("change", (e) => {
-  if (e.target.name === "practice-type") {
-    console.log("Selected:", e.target.value);
-    updateSetupModal();
+// #region Validation
+function getPracticeType() {
+  return document.querySelector('input[name="practice-type"]:checked').value;
+}
+
+function validateInputs(type) {
+  el.warning.classList.add("hidden");
+
+  if (type !== "levels") return true;
+
+  const from = +el.fromLevel.value;
+  const to = +el.toLevel.value;
+
+  if (from > to) {
+    showWarning("From Level cannot be greater than To Level");
+    return false;
   }
-});
 
-const inputs = document.querySelectorAll(".number-input");
+  if (from < 1 || to > 60) {
+    showWarning("Levels must be between 1 and 60");
+    return false;
+  }
 
-inputs.forEach((input) => {
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "." || e.key === ",") {
-      e.preventDefault();
-    }
-  });
+  return true;
+}
 
-  input.addEventListener("input", () => normalize(input));
+function showWarning(msg) {
+  el.warning.textContent = msg;
+  el.warning.classList.remove("hidden");
+}
 
-  input.addEventListener("blur", () => normalize(input));
-});
+// #endregion
+
+class PracticeSession {
+  constructor(sentences) {
+    this.sentences = sentences;
+    this.index = 0;
+  }
+
+  get current() {
+    return this.sentences[this.index];
+  }
+
+  get hasNext() {
+    return this.index < this.sentences.length - 1;
+  }
+
+  advance() {
+    if (this.hasNext) this.index++;
+  }
+}
