@@ -11,8 +11,6 @@ import {
 import { range, normalize } from "./utility.js";
 import { Kuroshiro } from "kuroshiro-browser";
 
-const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(true);
-
 // Element references
 const el = {
   settingsBtn: document.getElementById("settings-btn"),
@@ -84,6 +82,8 @@ initDateInput();
 initModalOverlay();
 initFontPicker();
 initEvents();
+
+const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(true);
 
 function initToken() {
   const token = getApiToken();
