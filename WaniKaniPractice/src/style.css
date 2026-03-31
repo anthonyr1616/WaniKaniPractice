@@ -2,44 +2,74 @@
   --color-bg-page: #f4f4f6;
   --color-bg-card: #ffffff;
   --color-bg-input: #ffffff;
+  --color-bg-cancel-btn: #ffffff;
+  --color-bg-cancel-hover: #f5f5f5;
   --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-input: #dddddd;
   --color-text-primary: #1a1a1a;
   --color-text-secondary: #555555;
   --color-text-muted: #888888;
   --color-text-label: #999999;
+  --color-text-cancel: #555555;
   --color-hint-bg: #e6f0ff;
   --color-hint-text: #1a4faa;
   --color-btn-hint-bg: #fff3e0;
   --color-btn-hint-text: #7a4500;
+  --color-btn-hint-hover: #ffe0b2;
   --color-btn-answer-bg: #e3f2fd;
   --color-btn-answer-text: #0c447c;
+  --color-btn-answer-hover: #bbdefb;
   --color-btn-next-bg: #e8f5e9;
   --color-btn-next-text: #1b5e20;
-  --color-btn-reset-bg: #d98282;
-  --color-btn-reset-text: #5a0909;
+  --color-btn-next-hover: #c8e6c9;
+  --color-btn-reset-bg: #2a1515;
+  --color-btn-reset-text: #f87171;
+  --color-btn-reset-hover: #3a1d1d;
   --color-progress-track: rgba(58, 134, 255, 0.2);
+  --color-accent: #3a86ff;
+  --color-accent-hover: #2970e0;
+  --color-accent-subtle: #e6f0ff;
+  --color-accent-text: #1a4faa;
+  --color-radio-text: #444444;
+  --color-warning-bg: #e53935;
+  --color-warning-text: #ffffff;
 }
 
 [data-theme="dark"] {
   --color-bg-page: #0f0f11;
   --color-bg-card: #1c1c1f;
   --color-bg-input: #2a2a2e;
+  --color-bg-cancel-btn: #2a2a2e;
+  --color-bg-cancel-hover: #333337;
   --color-border: rgba(255, 255, 255, 0.09);
+  --color-border-input: rgba(255, 255, 255, 0.12);
   --color-text-primary: #f0f0f0;
   --color-text-secondary: #aaaaaa;
   --color-text-muted: #777777;
   --color-text-label: #666666;
+  --color-text-cancel: #aaaaaa;
   --color-hint-bg: #1a2a44;
   --color-hint-text: #7eb3ff;
   --color-btn-hint-bg: #2a1f0e;
   --color-btn-hint-text: #ffb74d;
+  --color-btn-hint-hover: #3a2a14;
   --color-btn-answer-bg: #0d1f33;
   --color-btn-answer-text: #7eb3ff;
+  --color-btn-answer-hover: #132a44;
   --color-btn-next-bg: #0d1f12;
   --color-btn-next-text: #81c784;
-  --color-btn-reset-bg: #252528;
-  --color-btn-reset-text: #999999;
+  --color-btn-next-hover: #12301a;
+  --color-btn-reset-bg: #fdecea;
+  --color-btn-reset-text: #b42318;
+  --color-btn-reset-hover: #f9d3cf;
   --color-progress-track: rgba(58, 134, 255, 0.15);
+  --color-accent: #3a86ff;
+  --color-accent-hover: #5a9eff;
+  --color-accent-subtle: #1a2a44;
+  --color-accent-text: #7eb3ff;
+  --color-radio-text: #aaaaaa;
+  --color-warning-bg: #7f1d1d;
+  --color-warning-text: #fecaca;
 }
 
 * {
@@ -77,19 +107,6 @@ body {
   gap: 12px;
 }
 
-.progress-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.progress-counter {
-  font-size: 13px;
-  opacity: 0.85;
-  color: var(--color-text-muted)
-}
-
 .clickable-icon {
   height: 1.5rem;
   width: auto;
@@ -102,21 +119,38 @@ body {
   transform: scale(1.1);
 }
 
-/* Progress bar */
+/* Progress */
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.progress-counter {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
 
 .progress-bar {
-  height: 3px;
-  background: rgba(58, 134, 255, 0.2);
+  flex: 1;
+  height: 6px;
+  background: var(--color-progress-track);
+  border-radius: 100%;
+  overflow: hidden;
 }
 
 .progress-fill {
-  height: 3px;
-  background: #3a86ff;
+  height: 100%;
+  background: var(--color-accent);
   width: 0%;
+  border-radius: 99px;
   transition: width 0.4s ease;
 }
 
-/* Setup / landing */
+/* ─── Setup / landing ─────────────────────────────────── */
 
 .setup-area {
   display: flex;
@@ -140,7 +174,7 @@ body {
 
 .setup-tagline {
   font-size: 15px;
-  color: #555;
+  color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
@@ -151,7 +185,7 @@ body {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  max-width: 520px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -189,6 +223,14 @@ body {
   text-align: center;
 }
 
+#hint-types {
+  display: flex;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
 .hint-row {
   display: flex;
   align-items: baseline;
@@ -208,14 +250,6 @@ body {
   font-size: 14px;
   color: var(--color-text-secondary);
   transition: filter 0.3s ease;
-}
-
-#hint-types {
-  display: flex;
-  gap: 0.2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Sentence card  */
@@ -277,8 +311,11 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition:
-    opacity 0.15s ease,
-    transform 0.1s ease;
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    opacity 0.15s ease;
 }
 
 .btn-grid button:active {
@@ -291,9 +328,17 @@ body {
   color: var(--color-btn-hint-text);
 }
 
+.btn-hint:hover {
+  background: var(--color-btn-hint-hover);
+}
+
 .btn-answer {
   background: var(--color-btn-answer-bg);
   color: var(--color-btn-answer-text);
+}
+
+.btn-answer:hover {
+  background: var(--color-btn-answer-hover);
 }
 
 .btn-next {
@@ -302,18 +347,26 @@ body {
   grid-column: span 2;
 }
 
+.btn-next:hover {
+  background: var(--color-btn-next-hover);
+}
+
 .btn-reset {
   background: var(--color-btn-reset-bg);
   color: var(--color-btn-reset-text);
   border: 0.5px solid var(--color-border) !important;
 }
 
+.btn-reset:hover {
+  background: var(--color-btn-reset-hover);
+  color: #7a1c15;
+}
+
 .btn-primary {
   padding: 12px;
   border: none;
   border-radius: 10px;
-  /* TODO */
-  background: #3a86ff;
+  background: var(--color-accent);
   color: #ffffff;
   font-size: 15px;
   font-weight: 500;
@@ -323,10 +376,10 @@ body {
 }
 
 .btn-primary:hover {
-  background: #2970e0;
+  background: var(--color-accent-hover);
 }
 
-/* Modal  */
+/* Modal */
 
 .modal-overlay {
   position: fixed;
@@ -384,7 +437,7 @@ body {
 .setting-item select {
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-input);
   font-size: 14px;
   color: var(--color-text-primary);
   background: var(--color-bg-input);
@@ -393,8 +446,7 @@ body {
 .setting-item input:focus,
 .setting-item select:focus {
   outline: none;
-  /* TODO */
-  border-color: #3a86ff;
+  border-color: var(--color-accent);
 }
 
 .modal-actions {
@@ -406,33 +458,32 @@ body {
 .btn-cancel {
   padding: 9px 16px;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  background: white;
-  color: #555;
+  border: 1px solid var(--color-border-input);
+  background: var(--color-bg-cancel-btn);
+  color: var(--color-text-cancel);
   font-size: 14px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .btn-cancel:hover {
-  /* TODO */
-  background: #f5f5f5;
+  background: var(--color-bg-cancel-hover);
 }
 
 .btn-save {
   padding: 9px 16px;
   border-radius: 8px;
   border: none;
-  /* TODO */
-  background: #3a86ff;
-  color: white;
+  background: var(--color-accent);
+  color: #ffffff;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .btn-save:hover {
-  /* TODO */
-  background: #2970e0;
+  background: var(--color-accent-hover);
 }
 
 /* Radio group  */
@@ -449,9 +500,8 @@ body {
   justify-content: center;
   gap: 6px;
   padding: 9px 6px;
-  border: 1px solid var(--color-border);
-  /* TODO */
-  color: #444;
+  border: 1px solid var(--color-border-input);
+  color: var(--color-radio-text);
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
@@ -461,9 +511,9 @@ body {
 }
 
 .radio-label:has(input:checked) {
-  border-color: #3a86ff;
-  background: #e6f0ff;
-  color: #1a4faa;
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-text);
 }
 
 .radio-label input {
@@ -488,32 +538,30 @@ body {
 
 .input-row label {
   font-size: 14px;
-  /* TODO */
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .input-row input {
   padding: 8px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-input);
   border-radius: 8px;
   font-size: 14px;
   width: 100px;
-  /* TODO */
-  color: #1a1a1a;
+  color: var(--color-text-primary);
+  background: var(--color-bg-input);
 }
 
 .input-row input:focus {
   outline: none;
-  border-color: #3a86ff;
+  border-color: var(--color-accent);
 }
 
 /* Warning  */
 
 .warning {
   font-size: 13px;
-  color: #fff;
-  /* TODO */
-  background: #e53935;
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
   padding: 8px 12px;
   border-radius: 8px;
 }
@@ -524,36 +572,29 @@ body {
   display: none !important;
 }
 
-/* Japanese fonts  */
+/* Font classes  */
 
 .font-kosugi-maru {
   font-family: "Kosugi Maru", serif;
 }
-
 .font-m-plus-1p {
   font-family: "M PLUS 1p", serif;
 }
-
 .font-noto-sans-jp {
   font-family: "Noto Sans JP", serif;
 }
-
 .font-noto-serif-jp {
   font-family: "Noto Serif JP", serif;
 }
-
 .font-shippori-mincho {
   font-family: "Shippori Mincho B1", serif;
 }
-
 .font-yuji-syuku {
   font-family: "Yuji Syuku", serif;
 }
-
 .font-zen-antique {
   font-family: "Zen Antique", serif;
 }
-
 .font-zen-maru-gothic {
   font-family: "Zen Maru Gothic", serif;
 }
