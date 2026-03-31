@@ -20,6 +20,7 @@ const el = {
   cancelBtn: document.querySelector("#settings-modal .cancel-btn"),
   apiTokenInput: document.getElementById("api-token"),
   fontSelect: document.getElementById("sentence-font"),
+  themeSelect: document.getElementById("theme-select"),
 
   fromLevel: document.getElementById("from-level"),
   toLevel: document.getElementById("to-level"),
@@ -77,6 +78,7 @@ const FONT_MAP = {
 const fonts = Object.keys(FONT_MAP);
 
 // Init
+initTheme();
 initToken();
 initDateInput();
 initModalOverlay();
@@ -133,6 +135,7 @@ function initEvents() {
 
   el.saveBtn.onclick = () => {
     setApiToken(el.apiTokenInput.value);
+    setTheme(el.themeSelect.value);
     setFont(el.fontSelect.value);
     closeModal("settings-modal");
   };
@@ -389,3 +392,30 @@ class PracticeSession {
     if (this.hasNext) this.index++;
   }
 }
+
+// Theme helpers
+
+function initTheme() {
+  const saved = localStorage.getItem("theme") ?? "light";
+  applyTheme(saved);
+  el.themeSelect.value = saved;
+}
+
+function setTheme(theme) {
+  localStorage.setItem("theme", theme);
+  applyTheme(theme);
+}
+
+function applyTheme(theme) {
+  if (theme === "system") {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  } else {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+}
+
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  if (getFontPreference() === "system") applyTheme("system");
+  // or whatever you name your theme preference getter
+});
