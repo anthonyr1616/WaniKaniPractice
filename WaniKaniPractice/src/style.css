@@ -252,6 +252,10 @@ body {
   transition: filter 0.3s ease;
 }
 
+.hint-value.blurred {
+  transition: none;
+}
+
 /* Sentence card  */
 
 .sentence-card {
@@ -276,6 +280,10 @@ body {
   flex-direction: column;
   gap: 4px;
   transition: filter 0.3s ease;
+}
+
+.answer.blurred {
+  transition: none;
 }
 
 .sentence-kana {
@@ -549,6 +557,10 @@ body {
   width: 100px;
   color: var(--color-text-primary);
   background: var(--color-bg-input);
+}
+
+.input-row input[type="date"] {
+  width: 125px;
 }
 
 .input-row input:focus {
