@@ -32,8 +32,12 @@ const el = {
   hintBtn: document.getElementById("hint-btn"),
   resetBtn: document.getElementById("reset-btn"),
 
-  setupArea: document.querySelector(".setup-area"),
+  setupArea: document.getElementById("setup-area"),
   mainArea: document.querySelector(".main"),
+
+  progressBar: document.getElementById("progress-bar"),
+  progressFill: document.getElementById("progress-fill"),
+  progressCounter: document.getElementById("progress-counter"),
 
   warning: document.getElementById("start-warning"),
 
@@ -41,50 +45,50 @@ const el = {
     jp: document.querySelector(".sentence-jp"),
     kana: document.querySelector(".sentence-kana"),
     en: document.querySelector(".sentence-en"),
+    answer: document.querySelector(".answer"),
   },
 
   hint: {
-    characters: document.querySelector(".characters .hint-text"),
-    readings: document.querySelector(".readings .hint-text"),
-    meanings: document.querySelector(".meanings .hint-text"),
-    types: document.querySelector(".wordTypes .hint-text"),
+    characters: document.getElementById("hint-characters"),
+    readings: document.getElementById("hint-readings"),
+    meanings: document.getElementById("hint-meanings"),
+    types: document.getElementById("hint-types"),
   },
 
   levelsRange: document.querySelector("#start-modal .levels-range"),
   daysRange: document.querySelector("#start-modal .days-range"),
 };
 
-const fonts = [
-  "Serif",
-  "Georgia",
-  "Times New Roman",
-  "Kosugi Maru",
-  "M PLUS 1p",
-  "Noto Sans JP",
-  "Noto Serif JP",
-  "Shippori Mincho B1",
-  "Yuji Syuku",
-  "Zen Antique",
-  "Zen Maru Gothic",
-];
+// Font config
+const FONT_MAP = {
+  Serif: "font-serif",
+  Georgia: "font-georgia",
+  "Times New Roman": "font-times",
+  "Kosugi Maru": "font-kosugi-maru",
+  "M PLUS 1p": "font-m-plus-1p",
+  "Noto Sans JP": "font-noto-sans-jp",
+  "Noto Serif JP": "font-noto-serif-jp",
+  "Shippori Mincho B1": "font-shippori-mincho",
+  "Yuji Syuku": "font-yuji-syuku",
+  "Zen Antique": "font-zen-antique",
+  "Zen Maru Gothic": "font-zen-maru-gothic",
+};
 
-// Initalize UI
+const fonts = Object.keys(FONT_MAP);
+
+// Init
 initToken();
 initDateInput();
 initModalOverlay();
 initFontPicker();
 initEvents();
 
-// #region Init functions
-
 function initToken() {
   const token = getApiToken();
-
   if (!token) {
     openModal("settings-modal");
     return;
   }
-
   el.apiTokenInput.value = token;
 }
 
@@ -94,7 +98,6 @@ function initDateInput() {
   max.setDate(today.getDate() + 7);
 
   const format = (d) => d.toISOString().split("T")[0];
-
   el.atDate.value = format(today);
   el.atDate.min = format(today);
   el.atDate.max = format(max);
@@ -110,7 +113,7 @@ function initModalOverlay() {
 
 function initFontPicker() {
   el.fontSelect.innerHTML = "";
-  
+
   const randomOption = document.createElement("option");
   randomOption.value = "Random";
   randomOption.textContent = "Random";
@@ -147,20 +150,17 @@ function initEvents() {
     input.addEventListener("keydown", (e) => {
       if ([".", ","].includes(e.key)) e.preventDefault();
     });
-
     input.addEventListener("input", () => normalize(input));
     input.addEventListener("blur", () => normalize(input));
   });
 }
 
-// #endregion
+// Practice logic
 
-// #region Practice logic
 let session = null;
 
 async function onStart() {
   const type = getPracticeType();
-
   if (!validateInputs(type)) return;
 
   closeModal("start-modal");
@@ -172,29 +172,35 @@ async function startPractice(type) {
   const sentences = shuffle(flatten(vocab));
 
   session = new PracticeSession(sentences);
-  toggleMainView();
-  toggleAnswer(false);
+  toggleMainView(true);
+  resetCard();
   await renderSentence(session.current);
+  updateProgress();
 }
 
 async function onNext() {
+  if (!session) return;
+
   if (getFontPreference() === "Random") {
     const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
     applyFont(randomFont);
   }
 
   session.advance();
+  resetCard();
   await renderSentence(session.current);
-  hideHints();
-  toggleAnswer(false);
+  updateProgress();
 }
 
 function onShowAnswer() {
-  toggleAnswer(true);
+  if (!session) return;
+  el.vocab.answer.classList.remove("blurred");
 }
 
 function onHint() {
-  showHints();
+  if (!session) return;
+  el.hint.readings.classList.remove("blurred");
+  el.hint.meanings.classList.remove("blurred");
 }
 
 function onReset() {
@@ -202,7 +208,7 @@ function onReset() {
   toggleMainView(false);
 }
 
-// #endregion
+// Fetch
 
 async function fetchVocab(type) {
   if (type === "levels") {
@@ -219,7 +225,7 @@ async function fetchVocab(type) {
   return getCriticalVocab();
 }
 
-// #region Transformation helper  methods
+// Transformation helpers
 
 function flatten(vocabList) {
   return vocabList.flatMap((v) =>
@@ -227,18 +233,19 @@ function flatten(vocabList) {
       vocab: v,
       japanese: s.japanese,
       english: s.english,
-      seen: false,
     })),
   );
 }
 
 function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
-// #endregion
-
-// #region Rendering
+// Rendering
 
 async function renderSentence(sentence) {
   el.vocab.jp.textContent = sentence.japanese;
@@ -253,31 +260,37 @@ async function renderSentence(sentence) {
   el.hint.types.textContent = sentence.vocab.partsOfSpeech.join(", ");
 }
 
+function resetCard() {
+  el.vocab.answer.classList.add("blurred");
+  el.hint.readings.classList.add("blurred");
+  el.hint.meanings.classList.add("blurred");
+}
+
 function toggleMainView(showMain = true) {
   el.setupArea.classList.toggle("hidden", showMain);
   el.mainArea.classList.toggle("hidden", !showMain);
+  el.progressBar.classList.toggle("hidden", !showMain);
+  el.progressCounter.classList.toggle("hidden", !showMain);
 }
 
-function hideHints() {
-  // TODO
-}
+function updateProgress() {
+  if (!session) return;
+  const current = session.index + 1;
+  const total = session.sentences.length;
+  const pct = (current / total) * 100;
 
-function showHints() {
-  // TODO
-}
-
-function toggleAnswer(show) {
-  // TODO
+  el.progressFill.style.width = `${pct}%`;
+  el.progressCounter.textContent = `${current} / ${total}`;
 }
 
 // Modal helpers
+
 const openModal = (id) =>
   document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 
-// #endregion
+// Setup modal
 
-// #region Setup Modal logic
 function openSetupModal() {
   openModal("start-modal");
   updateSetupModal();
@@ -285,28 +298,25 @@ function openSetupModal() {
 
 function updateSetupModal() {
   const type = getPracticeType();
-
   el.levelsRange.classList.toggle("hidden", type !== "levels");
   el.daysRange.classList.toggle("hidden", type !== "days");
 }
 
-// #endregion
+// Validation
 
-// #region Validation
 function getPracticeType() {
   return document.querySelector('input[name="practice-type"]:checked').value;
 }
 
 function validateInputs(type) {
   el.warning.classList.add("hidden");
-
   if (type !== "levels") return true;
 
   const from = +el.fromLevel.value;
   const to = +el.toLevel.value;
 
   if (from > to) {
-    showWarning("From Level cannot be greater than To Level");
+    showWarning("From level cannot be greater than To level");
     return false;
   }
 
@@ -323,72 +333,23 @@ function showWarning(msg) {
   el.warning.classList.remove("hidden");
 }
 
-// #endregion
-
-// #region Font stuff
+// Font helpers
 
 function setFont(font) {
-  if (font === "Random") {    
-    saveFontPreference(font);
+  saveFontPreference(font);
+
+  if (font === "Random") {
     const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
     applyFont(randomFont);
     return;
   }
 
-  saveFontPreference(font);
   applyFont(font);
 }
 
 function applyFont(font) {
-  el.vocab.jp.classList.remove(
-    "font-serif",
-    "font-georgia",
-    "font-times",
-    "font-kosugi-maru",
-    "font-m-plus-1p",
-    "font-noto-sans-jp",
-    "font-noto-serif-jp",
-    "font-shippori-mincho",
-    "font-yuji-syuku",
-    "font-zen-antique",
-    "font-zen-maru-gothic",
-  );
-
-  switch (font) {
-    case "Kosugi Maru":
-      el.vocab.jp.classList.add("font-kosugi-maru");
-      break;
-    case "M PLUS 1p":
-      el.vocab.jp.classList.add("font-m-plus-1p");
-      break;
-    case "Noto Sans JP":
-      el.vocab.jp.classList.add("font-noto-sans-jp");
-      break;
-    case "Noto Serif JP":
-      el.vocab.jp.classList.add("font-noto-serif-jp");
-      break;
-    case "Shippori Mincho B1":
-      el.vocab.jp.classList.add("font-shippori-mincho");
-      break;
-    case "Yuji Syuku":
-      el.vocab.jp.classList.add("font-yuji-syuku");
-      break;
-    case "Zen Antique":
-      el.vocab.jp.classList.add("font-zen-antique");
-      break;
-    case "Zen Maru Gothic":
-      el.vocab.jp.classList.add("font-zen-maru-gothic");
-      break;
-    case "Georgia":
-      el.vocab.jp.classList.add("font-georgia");
-      break;
-    case "Times New Roman":
-      el.vocab.jp.classList.add("font-times");
-      break;
-    default:
-      el.vocab.jp.classList.add("font-serif");
-      break;
-  }
+  el.vocab.jp.classList.remove(...Object.values(FONT_MAP));
+  el.vocab.jp.classList.add(FONT_MAP[font] ?? "font-serif");
 }
 
 function getFontPreference() {
@@ -396,11 +357,10 @@ function getFontPreference() {
 }
 
 function saveFontPreference(font) {
-    localStorage.setItem("preferredFont", font);
+  localStorage.setItem("preferredFont", font);
 }
 
-// #endregion
-
+// PracticeSession
 class PracticeSession {
   constructor(sentences) {
     this.sentences = sentences;

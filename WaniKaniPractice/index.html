@@ -16,81 +16,107 @@
 <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+
     <header class="header">
-        <h1>WaniKani Vocab Practice</h1>
-        <img src="src/assets/settings.svg" alt="Settings" class="clickable-icon" id="settings-btn">
+        <h1>WaniKani Practice</h1>
+        <div class="header-right">
+            <img src="src/assets/settings.svg" alt="Settings" class="clickable-icon" id="settings-btn">
+        </div>
     </header>
 
-    <div class="setup-area">
-        <button class="setup-btn">Setup</button>
+    <div class="setup-area" id="setup-area">
+        <div class="setup-card">
+            <p class="setup-tagline">Practice reading Japanese sentences<br>using your WaniKani vocabulary.</p>
+            <button class="btn-primary setup-btn">Start session</button>
+        </div>
     </div>
 
     <div class="main hidden">
-        <div class="hint-area">
-            <h2 class="characters">
-                <div class="hint-text"></div>
-            </h2>
-            <div class="readings" class="hint-item ">
-                <span class="hint-label">Reading(s):</span>
-                <span class="hint-text"></span>
+
+        <div class="hint-card" id="hint-card">
+            <div class="hint-card-header">
+                <span class="vocab-char hint-text" id="hint-characters"></span>
+                <span class="part-of-speech-badge hint-text" id="hint-types"></span>
             </div>
-            <div class="meanings" class="hint-item ">
-                <span class="hint-label">Meaning(s):</span>
-                <span class="hint-text"></span>
+            <div class="hint-row">
+                <span class="hint-label">Reading</span>
+                <span class="hint-value blurred" id="hint-readings"></span>
             </div>
-            <div class="wordTypes" class="hint-item ">
-                <span class="hint-label">Type:</span>
-                <span class="hint-text"></span>
+            <div class="hint-row">
+                <span class="hint-label">Meaning</span>
+                <span class="hint-value blurred" id="hint-meanings"></span>
             </div>
         </div>
-        <div class="vocab-area">
+
+        <div class="sentence-card">
             <div class="sentence-jp"></div>
-            <div class="answer">
+            <div class="answer blurred">
                 <div class="sentence-kana"></div>
                 <div class="sentence-en"></div>
             </div>
         </div>
-        <div id="buttons">
-            <button id="hint-btn">Show Hint</button>
-            <button id="show-answer-btn">Show Answer</button>
-            <button id="next-sentence-btn">Next Sentence</button>
-            <button id="reset-btn">Reset</button>
+        <div class="progress-row">
+            // Need to fix progress bar
+            <div class="progress-bar hidden" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-counter hidden" id="progress-counter">0 / 0</span>
         </div>
+
+        <div class="btn-grid">
+            <button class="btn-hint" id="hint-btn">Show hint</button>
+            <button class="btn-answer" id="show-answer-btn">Show answer</button>
+            <button class="btn-next" id="next-sentence-btn">Next sentence →</button>
+            <button class="btn-reset" id="reset-btn">Reset</button>
+        </div>
+
     </div>
 
+    <!-- Settings Modal -->
     <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal">
             <h3>Settings</h3>
 
             <div class="setting-item">
-                <label for="api-token">WaniKani API Token</label>
+                <label for="api-token">WaniKani API token</label>
                 <input type="text" id="api-token" maxlength="50" placeholder="Enter your API token">
             </div>
 
             <div class="setting-item">
-                <label for="sentence-font">Sentence Font</label>
-                <select id="sentence-font">
+                <label for="sentence-font">Sentence font</label>
+                <select id="sentence-font"></select>
+            </div>
+
+            <div class="setting-item">
+                <label for="theme-select">Theme</label>
+                <select id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
                 </select>
             </div>
 
             <div class="modal-actions">
-                <button class="cancel-btn">Cancel</button>
-                <button class="save-btn">Save</button>
+                <button class="btn-cancel cancel-btn">Cancel</button>
+                <button class="btn-save save-btn">Save</button>
             </div>
         </div>
     </div>
 
     <div id="start-modal" class="modal-overlay hidden">
         <div class="modal">
+            <h3>New session</h3>
             <div class="radio-group">
-                <label>
-                    <input type="radio" name="practice-type" value="levels" checked> Levels
+                <label class="radio-label">
+                    <input type="radio" name="practice-type" value="levels" checked>
+                    <span>Levels</span>
                 </label>
-                <label>
-                    <input type="radio" name="practice-type" value="days"> Lessons
+                <label class="radio-label">
+                    <input type="radio" name="practice-type" value="days">
+                    <span>Lessons</span>
                 </label>
-                <label>
-                    <input type="radio" name="practice-type" value="critical"> Critical
+                <label class="radio-label">
+                    <input type="radio" name="practice-type" value="critical">
+                    <span>Critical</span>
                 </label>
             </div>
 
@@ -100,26 +126,25 @@
 
             <div class="levels-range hidden">
                 <div class="input-row">
-                    <label for="from-level">From Level:</label>
+                    <label for="from-level">From level</label>
                     <input id="from-level" class="number-input" type="number" min="1" max="60" step="1" value="1">
                 </div>
                 <div class="input-row">
-                    <label for="to-level">To Level:</label>
+                    <label for="to-level">To level</label>
                     <input id="to-level" class="number-input" type="number" min="1" max="60" step="1" value="5">
                 </div>
             </div>
 
             <div class="days-range hidden">
                 <div class="input-row">
-                    <label for="at-date">At Date:</label>
+                    <label for="at-date">At date</label>
                     <input type="date" id="at-date" name="at-date" />
                 </div>
             </div>
 
-            <button id="start-btn">Start Practice</button>
+            <button id="start-btn" class="btn-primary">Start practice</button>
         </div>
     </div>
-
 
 </body>
 
