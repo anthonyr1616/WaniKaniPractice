@@ -201,6 +201,7 @@ function onHint() {
   if (!session) return;
   el.hint.readings.classList.remove("blurred");
   el.hint.meanings.classList.remove("blurred");
+  el.hint.types.classList.remove("blurred");
 }
 
 function onReset() {
@@ -257,13 +258,22 @@ async function renderSentence(sentence) {
   el.hint.characters.textContent = sentence.vocab.characters;
   el.hint.readings.textContent = sentence.vocab.readings.join(", ");
   el.hint.meanings.textContent = sentence.vocab.meanings.join(", ");
-  el.hint.types.textContent = sentence.vocab.partsOfSpeech.join(", ");
+
+  el.hint.types.innerHTML = "";
+  for (const part of sentence.vocab.partsOfSpeech) {
+    const badge = document.createElement("span");
+    badge.className = "part-of-speech-badge";
+    badge.textContent = part;
+    el.hint.types.appendChild(badge);
+  }
 }
 
 function resetCard() {
   el.vocab.answer.classList.add("blurred");
   el.hint.readings.classList.add("blurred");
   el.hint.meanings.classList.add("blurred");
+  el.hint.types.classList.add("blurred");
+  el.hint.types.innerHTML = "";
 }
 
 function toggleMainView(showMain = true) {

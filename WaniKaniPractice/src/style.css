@@ -141,6 +141,7 @@ body {
   padding: 3px 10px;
   border-radius: 20px;
   white-space: nowrap;
+  text-align: center;
 }
 
 .hint-row {
@@ -162,6 +163,14 @@ body {
   font-size: 14px;
   color: #444;
   transition: filter 0.3s ease;
+}
+
+#hint-types {
+  display: flex;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Sentence card  */
@@ -203,7 +212,7 @@ body {
 /* Blur / reveal  */
 
 .blurred {
-  filter: blur(5px);
+  filter: blur(6px);
   user-select: none;
 }
 
