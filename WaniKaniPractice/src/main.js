@@ -58,6 +58,12 @@ const el = {
   daysRange: document.querySelector("#start-modal .days-range"),
 };
 
+// Modal helpers
+
+const openModal = (id) =>
+  document.getElementById(id).classList.remove("hidden");
+const closeModal = (id) => document.getElementById(id).classList.add("hidden");
+
 // Font config
 const FONT_MAP = {
   Serif: "font-serif",
@@ -295,12 +301,6 @@ function updateProgress() {
   el.progressFill.style.width = `${pct}%`;
   el.progressCounter.textContent = `${current} / ${total}`;
 }
-
-// Modal helpers
-
-const openModal = (id) =>
-  document.getElementById(id).classList.remove("hidden");
-const closeModal = (id) => document.getElementById(id).classList.add("hidden");
 
 // Setup modal
 
