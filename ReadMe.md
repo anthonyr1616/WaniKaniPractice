@@ -1,4 +1,8 @@
 # WaniKani Vocab Practice
-Small project for me to have a good way to practice vocab from WaniKani lessons. Uses sentence examples from WaniKani to do practice with.
+Practice vocab from WaniKani lessons. Uses sentence examples from WaniKani to practice with. Allows selecting from lessons in a range, subjects available by a date, or critical vocab (accuracy < 75%).
 
-Must provide API Token from WaniKani to use this. This can be retreived/generated here: https://www.wanikani.com/settings/personal_access_tokens
+Must provide API Token from WaniKani to use. This can be retreived/generated here: https://www.wanikani.com/settings/personal_access_tokens
+
+<img width="1866" height="878" alt="image" src="https://github.com/user-attachments/assets/c5db2049-b298-487e-9dcb-b9cde21de402" />
+
+
