@@ -9,7 +9,6 @@ import {
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
-import { Kuroshiro } from "kuroshiro-browser";
 
 // Element references
 const el = {
@@ -88,8 +87,6 @@ initDateInput();
 initModalOverlay();
 initFontPicker();
 initEvents();
-
-const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(true);
 
 function initToken() {
   const token = getApiToken();
@@ -259,9 +256,9 @@ function shuffle(arr) {
 
 async function renderSentence(sentence) {
   el.vocab.jp.textContent = sentence.japanese;
-  el.vocab.kana.textContent = await kuroshiro.convert(sentence.japanese, {
-    to: "hiragana",
-  });
+  // el.vocab.kana.textContent = await kuroshiro.convert(sentence.japanese, {
+  //   to: "hiragana",
+  // });
   el.vocab.en.textContent = sentence.english;
 
   el.hint.characters.textContent = sentence.vocab.characters;
