@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/WaniKaniPractice/assets/favicon-ZbR8l3if.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+1p&family=Noto+Sans+JP:wght@100..900&family=Noto+Serif+JP:wght@200..900&family=Shippori+Mincho+B1&family=Yuji+Syuku&family=Zen+Antique&family=Zen+Maru+Gothic&display=swap"
+        rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WaniKani Vocab Practice</title>
+  <script type="module" crossorigin src="/WaniKaniPractice/assets/index-33Cr10OT.js"></script>
+  <link rel="stylesheet" crossorigin href="/WaniKaniPractice/assets/index-BhN7Je4s.css">
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <header class="header">
+        <h1>WaniKani Practice</h1>
+        <div class="header-right">
+            <img src="/WaniKaniPractice/assets/settings-DUu5Ps2L.svg" alt="Settings" class="clickable-icon" height="1.5rem" id="settings-btn">
+        </div>
+    </header>
+
+    <div class="setup-area" id="setup-area">
+        <div class="setup-card">
+            <p class="setup-tagline">Practice reading Japanese sentences<br>using your WaniKani vocabulary.</p>
+            <button class="btn-primary setup-btn">Start session</button>
+        </div>
+    </div>
+
+    <div class="main hidden">
+
+        <div class="hint-card" id="hint-card">
+            <div class="hint-card-header">
+                <span class="vocab-char" id="hint-characters"></span>
+                <div id="hint-types"></div>
+            </div>
+            <div class="hint-row">
+                <span class="hint-label">Reading</span>
+                <span class="hint-value blurred" id="hint-readings"></span>
+            </div>
+            <div class="hint-row">
+                <span class="hint-label">Meaning</span>
+                <span class="hint-value blurred" id="hint-meanings"></span>
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="sentence-jp"></div>
+            <div class="answer blurred">
+                <div class="sentence-kana"></div>
+                <div class="sentence-en"></div>
+            </div>
+        </div>
+        <div class="progress-row">
+            <div class="progress-bar hidden" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-counter hidden" id="progress-counter">0 / 0</span>
+        </div>
+
+        <div class="btn-grid">
+            <button class="btn-hint" id="hint-btn">Show hint</button>
+            <button class="btn-answer" id="show-answer-btn">Show answer</button>
+            <button class="btn-next" id="next-sentence-btn">Next sentence →</button>
+            <button class="btn-reset" id="reset-btn">Reset</button>
+        </div>
+
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>Settings</h3>
+
+            <div class="setting-item">
+                <label for="api-token">WaniKani API token</label>
+                <input type="text" id="api-token" maxlength="50" placeholder="Enter your API token">
+            </div>
+
+            <div class="setting-item">
+                <label for="sentence-font">Sentence font</label>
+                <select id="sentence-font"></select>
+            </div>
+
+            <div class="setting-item">
+                <label for="theme-select">Theme</label>
+                <select id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="system">System</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel cancel-btn">Cancel</button>
+                <button class="btn-save save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>New session</h3>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="practice-type" value="levels" checked>
+                    <span>Levels</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="practice-type" value="days">
+                    <span>Lessons</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="practice-type" value="critical">
+                    <span>Critical</span>
+                </label>
+            </div>
+
+            <div class="warnings">
+                <p id="start-warning" class="warning hidden"></p>
+            </div>
+
+            <div class="levels-range hidden">
+                <div class="input-row">
+                    <label for="from-level">From level</label>
+                    <input id="from-level" class="number-input" type="number" min="1" max="60" step="1" value="1">
+                </div>
+                <div class="input-row">
+                    <label for="to-level">To level</label>
+                    <input id="to-level" class="number-input" type="number" min="1" max="60" step="1" value="5">
+                </div>
+            </div>
+
+            <div class="days-range hidden">
+                <div class="input-row">
+                    <label for="at-date">At date</label>
+                    <input type="date" id="at-date" name="at-date" />
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn-primary">Start practice</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
