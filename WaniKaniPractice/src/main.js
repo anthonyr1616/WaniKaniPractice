@@ -12,6 +12,7 @@ import { range, normalize } from "./utility.js";
 import { Kuroshiro } from "kuroshiro-browser"
 
 const IS_PROD = (import.meta.env.MODE == 'production');
+console.log(`Running in ${IS_PROD ? "production" : "development"} mode`);
 
 const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(IS_PROD);
 
