@@ -9,12 +9,12 @@ import {
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
-import { Kuroshiro } from "kuroshiro-browser"
+import { Kuroshiro, KuroshiroAnalyzerKuromoji } from "kuroshiro-browser"
 
-const IS_PROD = (import.meta.env.MODE == 'production');
-console.log(`Running in ${IS_PROD ? "production" : "development"} mode`);
-
-const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(IS_PROD);
+const kuroshiro = new Kuroshiro();
+const kuroshiroReady = kuroshiro.init(
+  new KuroshiroAnalyzerKuromoji({ dicPath: import.meta.env.BASE_URL + "dict/" })
+);
 
 // Element references
 const el = {
@@ -262,6 +262,7 @@ function shuffle(arr) {
 
 async function convertToHiragana(text) {
   try {
+    await kuroshiroReady;
     return await kuroshiro.convert(text, { to: "hiragana" });
   } catch {
     return null;

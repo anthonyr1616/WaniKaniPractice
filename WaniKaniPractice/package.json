@@ -14,8 +14,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist",
-    "postbuild": "shx mkdir -p dist/dict && shx cp -r node_modules/kuroshiro-browser/dist/dict/* dist/dict"
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
