@@ -9,6 +9,11 @@ import {
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
+import { Kuroshiro } from "kuroshiro-browser"
+
+const IS_PROD = (import.meta.env.MODE == 'production');
+
+const kuroshiro = await Kuroshiro.buildAndInitWithKuromoji(IS_PROD);
 
 // Element references
 const el = {
@@ -254,11 +259,18 @@ function shuffle(arr) {
 
 // Rendering
 
+async function convertToHiragana(text) {
+  try {
+    return await kuroshiro.convert(text, { to: "hiragana" });
+  } catch {
+    return null;
+  }
+}
+
 async function renderSentence(sentence) {
   el.vocab.jp.textContent = sentence.japanese;
-  // el.vocab.kana.textContent = await kuroshiro.convert(sentence.japanese, {
-  //   to: "hiragana",
-  // });
+  const kana = await convertToHiragana(sentence.japanese);
+  el.vocab.kana.textContent = kana ?? "";
   el.vocab.en.textContent = sentence.english;
 
   el.hint.characters.textContent = sentence.vocab.characters;
