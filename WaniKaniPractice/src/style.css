@@ -359,6 +359,12 @@ body {
   background: var(--color-btn-next-hover);
 }
 
+.btn-next:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--color-btn-next-bg);
+}
+
 .btn-reset {
   background: var(--color-btn-reset-bg);
   color: var(--color-btn-reset-text);

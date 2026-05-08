@@ -217,10 +217,15 @@ async function startPractice(type) {
   resetCard();
   await renderSentence(session.current);
   updateProgress();
+
+  if (!session.hasNext) {
+    el.nextSentenceBtn.textContent = "No more vocab to review";
+    el.nextSentenceBtn.disabled = true;
+  }
 }
 
 async function onNext() {
-  if (!session) return;
+  if (!session || !session.hasNext) return;
 
   if (getFontPreference() === "Random") {
     const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
@@ -231,6 +236,11 @@ async function onNext() {
   resetCard();
   await renderSentence(session.current);
   updateProgress();
+
+  if (!session.hasNext) {
+    el.nextSentenceBtn.textContent = "No more vocab to review";
+    el.nextSentenceBtn.disabled = true;
+  }
 }
 
 function onShowAnswer() {
@@ -323,6 +333,8 @@ function resetCard() {
   el.hint.meanings.classList.add("blurred");
   el.hint.types.classList.add("blurred");
   el.hint.types.innerHTML = "";
+  el.nextSentenceBtn.textContent = "Next sentence →";
+  el.nextSentenceBtn.disabled = false;
 }
 
 function toggleMainView(showMain = true) {
