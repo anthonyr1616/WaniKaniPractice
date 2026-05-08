@@ -8,74 +8,90 @@ export function setApiToken(token) {
   localStorage.setItem("apiToken", token);
 }
 
-async function apiRequest(endpoint, params = {}) {
+async function authFetch(url) {
   const token = getApiToken();
+  if (!token) throw new Error("API token is missing");
 
-  if (!token) {
-    throw new Error("API token is missing");
-  }
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
+  if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+
+  return response.json();
+}
+
+async function fetchAllPages(endpoint, params = {}) {
   const url = new URL(`${BASE_URL}/${endpoint}`);
-
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.append(key, value);
     }
   });
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const items = [];
+  let nextUrl = url.toString();
 
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status}`);
+  while (nextUrl) {
+    const page = await authFetch(nextUrl);
+    items.push(...page.data);
+    nextUrl = page.pages?.next_url ?? null;
   }
 
-  return response.json();
+  return items;
 }
 
 export async function getVocabByLevels(levels) {
-  const data = await apiRequest("subjects", {
+  const items = await fetchAllPages("subjects", {
     types: "vocabulary",
     levels: levels.join(","),
   });
 
-  return mapToVocab(data.data);
+  return mapToVocab(items);
 }
 
 export async function getVocabAvailableAtDate(after, before) {
-  const data = await apiRequest("assignments", {
+  const assignments = await fetchAllPages("assignments", {
     subject_types: "vocabulary",
     available_after: after.toISOString(),
     available_before: before.toISOString(),
     burned: false,
   });
 
-  const ids = data.data.map((a) => a.data.subject_id);
+  const ids = assignments.map((a) => a.data.subject_id);
   return getVocabByIds(ids);
 }
 
 export async function getCriticalVocab() {
-  const data = await apiRequest("review_statistics", {
+  const stats = await fetchAllPages("review_statistics", {
     subject_types: "vocabulary",
     percentages_less_than: 75,
   });
 
-  const ids = data.data.map((s) => s.data.subject_id);
+  const ids = stats.map((s) => s.data.subject_id);
   return getVocabByIds(ids);
 }
+
+const ID_CHUNK_SIZE = 500;
 
 export async function getVocabByIds(ids) {
   if (!ids.length) return [];
 
-  const data = await apiRequest("subjects", {
-    types: "vocabulary",
-    ids: ids.join(","),
-  });
+  const chunks = [];
+  for (let i = 0; i < ids.length; i += ID_CHUNK_SIZE) {
+    chunks.push(ids.slice(i, i + ID_CHUNK_SIZE));
+  }
 
-  return mapToVocab(data.data);
+  const pages = await Promise.all(
+    chunks.map((chunk) =>
+      fetchAllPages("subjects", {
+        types: "vocabulary",
+        ids: chunk.join(","),
+      }),
+    ),
+  );
+
+  return mapToVocab(pages.flat());
 }
 
 function mapToVocab(items) {
