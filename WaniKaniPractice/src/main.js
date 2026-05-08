@@ -43,6 +43,7 @@ const el = {
 
   startBtn: document.getElementById("start-btn"),
   setupBtn: document.querySelector(".setup-btn"),
+  prevSentenceBtn: document.getElementById("prev-sentence-btn"),
   nextSentenceBtn: document.getElementById("next-sentence-btn"),
   showAnswerBtn: document.getElementById("show-answer-btn"),
   hintBtn: document.getElementById("hint-btn"),
@@ -176,6 +177,7 @@ function initEvents() {
 
   el.setupBtn.onclick = openSetupModal;
   el.startBtn.onclick = onStart;
+  el.prevSentenceBtn.onclick = onPrev;
   el.nextSentenceBtn.onclick = onNext;
   el.showAnswerBtn.onclick = onShowAnswer;
   el.hintBtn.onclick = onHint;
@@ -227,11 +229,17 @@ async function startPractice(type) {
   resetCard();
   await renderSentence(session.current);
   updateProgress();
+  updateNavButtons();
+}
 
-  if (!session.hasNext) {
-    el.nextSentenceBtn.textContent = "No more vocab to review";
-    el.nextSentenceBtn.disabled = true;
-  }
+async function onPrev() {
+  if (!session || !session.hasPrev) return;
+
+  session.retreat();
+  resetCard();
+  await renderSentence(session.current);
+  updateProgress();
+  updateNavButtons();
 }
 
 async function onNext() {
@@ -246,11 +254,7 @@ async function onNext() {
   resetCard();
   await renderSentence(session.current);
   updateProgress();
-
-  if (!session.hasNext) {
-    el.nextSentenceBtn.textContent = "No more vocab to review";
-    el.nextSentenceBtn.disabled = true;
-  }
+  updateNavButtons();
 }
 
 function onShowAnswer() {
@@ -343,8 +347,6 @@ function resetCard() {
   el.hint.meanings.classList.add("blurred");
   el.hint.types.classList.add("blurred");
   el.hint.types.innerHTML = "";
-  el.nextSentenceBtn.textContent = "Next sentence →";
-  el.nextSentenceBtn.disabled = false;
 }
 
 function toggleMainView(showMain = true) {
@@ -362,6 +364,13 @@ function updateProgress() {
 
   el.progressFill.style.width = `${pct}%`;
   el.progressCounter.textContent = `${current} / ${total}`;
+}
+
+function updateNavButtons() {
+  if (!session) return;
+  el.prevSentenceBtn.disabled = !session.hasPrev;
+  el.nextSentenceBtn.disabled = !session.hasNext;
+  el.nextSentenceBtn.textContent = session.hasNext ? "Next sentence →" : "No more vocab to review";
 }
 
 // Setup modal
@@ -446,8 +455,16 @@ class PracticeSession {
     return this.sentences[this.index];
   }
 
+  get hasPrev() {
+    return this.index > 0;
+  }
+
   get hasNext() {
     return this.index < this.sentences.length - 1;
+  }
+
+  retreat() {
+    if (this.hasPrev) this.index--;
   }
 
   advance() {
