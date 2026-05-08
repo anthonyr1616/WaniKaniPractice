@@ -195,17 +195,17 @@ body {
   background: var(--color-bg-card);
   border: 0.5px solid var(--color-border);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
-  max-width: 360px;
+  max-width: 520px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 2rem;
 }
 
 .setup-tagline {
-  font-size: 15px;
+  font-size: 19px;
   color: var(--color-text-secondary);
   line-height: 1.6;
 }
@@ -215,9 +215,9 @@ body {
 .main {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  max-width: 800px;
+  gap: 20px;
+  padding: 24px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
@@ -227,10 +227,10 @@ body {
   background: var(--color-bg-card);
   border: 0.5px solid var(--color-border);
   border-radius: 16px;
-  padding: 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .hint-card-header {
@@ -240,16 +240,16 @@ body {
 }
 
 .vocab-char {
-  font-size: 1.75rem;
+  font-size: 3rem;
   font-weight: 500;
   color: var(--color-text-primary);
 }
 
 .part-of-speech-badge {
-  font-size: 11px;
+  font-size: 13px;
   background: var(--color-hint-bg);
   color: var(--color-hint-text);
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
   white-space: nowrap;
   text-align: center;
@@ -270,16 +270,16 @@ body {
 }
 
 .hint-label {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--color-text-label);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  min-width: 60px;
+  min-width: 80px;
   flex-shrink: 0;
 }
 
 .hint-value {
-  font-size: 14px;
+  font-size: 20px;
   color: var(--color-text-secondary);
   transition: filter 0.3s ease;
 }
@@ -294,15 +294,15 @@ body {
   background: var(--color-bg-card);
   border: 0.5px solid var(--color-border);
   border-radius: 16px;
-  padding: 28px 20px;
+  padding: 48px 36px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 
 .sentence-jp {
-  font-size: 2rem;
+  font-size: 3.75rem;
   color: var(--color-text-primary);
   line-height: 1.5;
 }
@@ -319,12 +319,12 @@ body {
 }
 
 .sentence-kana {
-  font-size: 15px;
+  font-size: 22px;
   color: var(--color-text-secondary);
 }
 
 .sentence-en {
-  font-size: 14px;
+  font-size: 20px;
   color: var(--color-text-muted);
 }
 
@@ -340,14 +340,14 @@ body {
 .btn-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 12px;
 }
 
 .btn-grid button {
-  padding: 13px;
+  padding: 22px;
   border: none;
   border-radius: 12px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 500;
   cursor: pointer;
   transition:
