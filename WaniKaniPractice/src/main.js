@@ -148,6 +148,12 @@ function initFontPicker() {
     option.textContent = font;
     el.fontSelect.appendChild(option);
   });
+
+  const saved = getFontPreference();
+  if (saved) {
+    el.fontSelect.value = saved;
+    if (saved !== "Random") applyFont(saved);
+  }
 }
 
 function initEvents() {
@@ -188,12 +194,23 @@ async function onStart() {
   if (!validateInputs(type)) return;
 
   closeModal("start-modal");
-  await startPractice(type);
+  try {
+    await startPractice(type);
+  } catch {
+    showWarning("Failed to load vocabulary. Check your API token.");
+    openModal("start-modal");
+  }
 }
 
 async function startPractice(type) {
   const vocab = await fetchVocab(type);
   const sentences = shuffle(flatten(vocab));
+
+  if (!sentences.length) {
+    showWarning("No vocabulary found for the selected options.");
+    openModal("start-modal");
+    return;
+  }
 
   session = new PracticeSession(sentences);
   toggleMainView(true);
@@ -446,5 +463,5 @@ function applyTheme(theme) {
 window
   .matchMedia("(prefers-color-scheme: dark)")
   .addEventListener("change", () => {
-    if (getFontPreference() === "system") applyTheme("system");
+    if (localStorage.getItem("theme") === "system") applyTheme("system");
   });
