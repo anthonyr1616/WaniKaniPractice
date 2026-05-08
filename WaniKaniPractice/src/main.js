@@ -73,6 +73,8 @@ const el = {
 
   levelsRange: document.querySelector("#start-modal .levels-range"),
   daysRange: document.querySelector("#start-modal .days-range"),
+
+  loadingIndicator: document.getElementById("loading-indicator"),
 };
 
 // Modal helpers
@@ -80,6 +82,11 @@ const el = {
 const openModal = (id) =>
   document.getElementById(id).classList.remove("hidden");
 const closeModal = (id) => document.getElementById(id).classList.add("hidden");
+
+function setLoading(loading) {
+  el.loadingIndicator.classList.toggle("hidden", !loading);
+  el.setupBtn.disabled = loading;
+}
 
 // Font config
 const FONT_MAP = {
@@ -194,9 +201,11 @@ async function onStart() {
   if (!validateInputs(type)) return;
 
   closeModal("start-modal");
+  setLoading(true);
   try {
     await startPractice(type);
   } catch {
+    setLoading(false);
     showWarning("Failed to load vocabulary. Check your API token.");
     openModal("start-modal");
   }
@@ -207,6 +216,7 @@ async function startPractice(type) {
   const sentences = shuffle(flatten(vocab));
 
   if (!sentences.length) {
+    setLoading(false);
     showWarning("No vocabulary found for the selected options.");
     openModal("start-modal");
     return;
