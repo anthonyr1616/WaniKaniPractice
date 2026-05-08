@@ -113,6 +113,7 @@ initDateInput();
 initModalOverlay();
 initFontPicker();
 initEvents();
+initKeyboard();
 
 function initToken() {
   const token = getApiToken();
@@ -162,6 +163,20 @@ function initFontPicker() {
     el.fontSelect.value = saved;
     if (saved !== "Random") applyFont(saved);
   }
+}
+
+function initKeyboard() {
+  document.addEventListener("keydown", (e) => {
+    if (!session) return;
+    if (e.target.matches("input, select, textarea")) return;
+
+    if (e.key === " ") {
+      e.preventDefault();
+      onShowAnswer();
+    } else if (e.key === "h") onHint();
+    else if (e.key === "ArrowRight") onNext();
+    else if (e.key === "ArrowLeft") onPrev();
+  });
 }
 
 function initEvents() {
@@ -271,6 +286,7 @@ function onHint() {
 
 function onReset() {
   session = null;
+  setLoading(false);
   toggleMainView(false);
 }
 
@@ -370,7 +386,9 @@ function updateNavButtons() {
   if (!session) return;
   el.prevSentenceBtn.disabled = !session.hasPrev;
   el.nextSentenceBtn.disabled = !session.hasNext;
-  el.nextSentenceBtn.textContent = session.hasNext ? "Next sentence →" : "No more vocab to review";
+  el.nextSentenceBtn.textContent = session.hasNext
+    ? "Next sentence →"
+    : "No more vocab to review";
 }
 
 // Setup modal
