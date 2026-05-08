@@ -8,10 +8,6 @@ export function setApiToken(token) {
   localStorage.setItem("apiToken", token);
 }
 
-export function clearApiToken() {
-  localStorage.removeItem("apiToken");
-}
-
 async function apiRequest(endpoint, params = {}) {
   const token = getApiToken();
 
@@ -38,21 +34,6 @@ async function apiRequest(endpoint, params = {}) {
   }
 
   return response.json();
-}
-
-export async function checkApiTokenValidity(token) {
-  try {
-    const response = await fetch(`${BASE_URL}/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.ok;
-  } catch (error) {
-    console.error("Token validation failed:", error);
-    return false;
-  }
 }
 
 export async function getVocabByLevels(levels) {
