@@ -11,8 +11,8 @@
         rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WaniKani Vocab Practice</title>
-  <script type="module" crossorigin src="/WaniKaniPractice/assets/index-Dz0ifPfy.js"></script>
-  <link rel="stylesheet" crossorigin href="/WaniKaniPractice/assets/index-BhN7Je4s.css">
+  <script type="module" crossorigin src="/WaniKaniPractice/assets/index-_jjJptrL.js"></script>
+  <link rel="stylesheet" crossorigin href="/WaniKaniPractice/assets/index-DNUdAMdy.css">
 </head>
 
 <body>
@@ -28,6 +28,10 @@
         <div class="setup-card">
             <p class="setup-tagline">Practice reading Japanese sentences<br>using your WaniKani vocabulary.</p>
             <button class="btn-primary setup-btn">Start session</button>
+        </div>
+        <div id="loading-indicator" class="loading-indicator hidden">
+            <div class="loading-spinner"></div>
+            <p>Loading vocabulary…</p>
         </div>
     </div>
 
@@ -65,6 +69,7 @@
         <div class="btn-grid">
             <button class="btn-hint" id="hint-btn">Show hint</button>
             <button class="btn-answer" id="show-answer-btn">Show answer</button>
+            <button class="btn-prev" id="prev-sentence-btn">← Previous</button>
             <button class="btn-next" id="next-sentence-btn">Next sentence →</button>
             <button class="btn-reset" id="reset-btn">Reset</button>
         </div>
