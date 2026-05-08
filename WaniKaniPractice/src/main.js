@@ -9,12 +9,24 @@ import {
 } from "./api.js";
 
 import { range, normalize } from "./utility.js";
-import { Kuroshiro, KuroshiroAnalyzerKuromoji } from "kuroshiro-browser"
+import { Kuroshiro, KuroshiroAnalyzerKuromoji } from "kuroshiro-browser";
+
+// Vite's sirv auto-adds Content-Encoding: br for .br files so the browser decompresses them,
+// but GitHub Pages serves them as raw bytes. Pre-decompressed .dat.raw copies are created
+// at build time and .dat.br fetches are redirected to them in production.
+if (import.meta.env.PROD) {
+  const _fetch = window.fetch.bind(window);
+  window.fetch = (url, opts) => {
+    const str = String(url);
+    return _fetch(
+      str.endsWith(".dat.br") ? str.replace(/\.dat\.br$/, ".dat.raw") : str,
+      opts,
+    );
+  };
+}
 
 const kuroshiro = new Kuroshiro();
-const kuroshiroReady = kuroshiro.init(
-  new KuroshiroAnalyzerKuromoji({ dicPath: import.meta.env.BASE_URL + "dict/" })
-);
+const kuroshiroReady = kuroshiro.init(new KuroshiroAnalyzerKuromoji());
 
 // Element references
 const el = {
@@ -419,14 +431,20 @@ function setTheme(theme) {
 
 function applyTheme(theme) {
   if (theme === "system") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    document.documentElement.setAttribute(
+      "data-theme",
+      prefersDark ? "dark" : "light",
+    );
   } else {
     document.documentElement.setAttribute("data-theme", theme);
   }
 }
 
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-  if (getFontPreference() === "system") applyTheme("system");
-  // or whatever you name your theme preference getter
-});
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", () => {
+    if (getFontPreference() === "system") applyTheme("system");
+  });
