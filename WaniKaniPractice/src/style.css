@@ -637,6 +637,80 @@ body {
   display: none !important;
 }
 
+@media (max-width: 768px) {
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .main {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    gap: 10px;
+    padding: 10px 12px;
+    width: 100%;
+  }
+
+  .hint-card {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .vocab-char {
+    font-size: 1.8rem;
+  }
+
+  .hint-value {
+    font-size: 15px;
+  }
+
+  .hint-label {
+    min-width: 65px;
+    font-size: 12px;
+  }
+
+  .sentence-card {
+    flex: 1;
+    min-height: 0;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    padding: 16px;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sentence-jp {
+    font-size: clamp(1.4rem, 5.5vw, 2.25rem);
+  }
+
+  .sentence-kana {
+    font-size: 15px;
+  }
+
+  .sentence-en {
+    font-size: 14px;
+  }
+
+  .progress-row {
+    flex-shrink: 0;
+  }
+
+  .btn-grid {
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .btn-grid button {
+    padding: 14px 10px;
+    font-size: 15px;
+  }
+}
+
 /* Font classes  */
 
 .font-kosugi-maru {
