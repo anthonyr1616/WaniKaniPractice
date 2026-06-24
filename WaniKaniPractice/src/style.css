@@ -87,7 +87,10 @@
 
 body {
   background: var(--color-bg-page);
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -132,6 +135,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .progress-counter {
@@ -215,10 +219,14 @@ body {
 .main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 14px;
+  padding: 16px;
   max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Hint card  */
@@ -227,10 +235,11 @@ body {
   background: var(--color-bg-card);
   border: 0.5px solid var(--color-border);
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .hint-card-header {
@@ -294,12 +303,54 @@ body {
   background: var(--color-bg-card);
   border: 0.5px solid var(--color-border);
   border-radius: 16px;
-  padding: 48px 36px;
-  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
 }
+
+.custom-scrollbar {
+  position: absolute;
+  right: 5px;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  pointer-events: none;
+  display: none;
+}
+
+.custom-scrollbar.visible {
+  display: block;
+}
+
+.custom-scrollbar-thumb {
+  position: absolute;
+  width: 100%;
+  min-height: 24px;
+  border-radius: 99px;
+  background: rgba(128, 128, 128, 0.4);
+}
+
+.sentence-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 32px;
+  text-align: center;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  justify-content: center;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sentence-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 
 .sentence-jp {
   font-size: 3.75rem;
@@ -340,11 +391,12 @@ body {
 .btn-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .btn-grid button {
-  padding: 22px;
+  padding: 16px;
   border: none;
   border-radius: 12px;
   font-size: 18px;
@@ -637,25 +689,15 @@ body {
   display: none !important;
 }
 
-@media (max-width: 768px) {
-  body {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    overflow: hidden;
-  }
+/* Mobile — size overrides only (layout fixed in base styles) */
 
+@media (max-width: 768px) {
   .main {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
     gap: 10px;
     padding: 10px 12px;
-    width: 100%;
   }
 
   .hint-card {
-    flex-shrink: 0;
     padding: 10px 14px;
     gap: 6px;
   }
@@ -673,15 +715,9 @@ body {
     font-size: 12px;
   }
 
-  .sentence-card {
-    flex: 1;
-    min-height: 0;
-    overflow-y: scroll;
-    scrollbar-gutter: stable;
+  .sentence-scroll {
     padding: 16px;
     gap: 12px;
-    width: 100%;
-    justify-content: center;
   }
 
   .sentence-jp {
@@ -696,12 +732,7 @@ body {
     font-size: 14px;
   }
 
-  .progress-row {
-    flex-shrink: 0;
-  }
-
   .btn-grid {
-    flex-shrink: 0;
     gap: 8px;
   }
 

@@ -76,6 +76,10 @@ const el = {
   daysRange: document.querySelector("#start-modal .days-range"),
 
   loadingIndicator: document.getElementById("loading-indicator"),
+
+  sentenceScroll: document.querySelector(".sentence-scroll"),
+  scrollbar: document.getElementById("custom-scrollbar"),
+  scrollbarThumb: document.getElementById("custom-scrollbar-thumb"),
 };
 
 // Modal helpers
@@ -114,6 +118,32 @@ initModalOverlay();
 initFontPicker();
 initEvents();
 initKeyboard();
+initCustomScrollbar();
+
+function initCustomScrollbar() {
+  el.sentenceScroll.addEventListener("scroll", updateCustomScrollbar);
+
+  new ResizeObserver(updateCustomScrollbar).observe(el.sentenceScroll);
+
+  new MutationObserver(() => requestAnimationFrame(updateCustomScrollbar))
+    .observe(el.sentenceScroll, { childList: true, subtree: true, characterData: true });
+}
+
+function updateCustomScrollbar() {
+  const { scrollTop, scrollHeight, clientHeight } = el.sentenceScroll;
+  const hasOverflow = scrollHeight > clientHeight + 1;
+
+  el.scrollbar.classList.toggle("visible", hasOverflow);
+  if (!hasOverflow) return;
+
+  const trackHeight = el.scrollbar.clientHeight;
+  const thumbHeight = Math.max(24, (clientHeight / scrollHeight) * trackHeight);
+  const maxTop = trackHeight - thumbHeight;
+  const thumbTop = (scrollTop / (scrollHeight - clientHeight)) * maxTop;
+
+  el.scrollbarThumb.style.height = thumbHeight + "px";
+  el.scrollbarThumb.style.top = thumbTop + "px";
+}
 
 function initToken() {
   const token = getApiToken();
@@ -355,6 +385,8 @@ async function renderSentence(sentence) {
     badge.textContent = part;
     el.hint.types.appendChild(badge);
   }
+
+  updateCustomScrollbar();
 }
 
 function resetCard() {
@@ -363,6 +395,7 @@ function resetCard() {
   el.hint.meanings.classList.add("blurred");
   el.hint.types.classList.add("blurred");
   el.hint.types.innerHTML = "";
+  el.sentenceScroll.scrollTop = 0;
 }
 
 function toggleMainView(showMain = true) {
