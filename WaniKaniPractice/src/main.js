@@ -8,7 +8,7 @@ import {
   getCriticalVocab,
 } from "./api.js";
 
-import { range, normalize } from "./utility.js";
+import { range, normalize, checkReading, checkMeaning } from "./utility.js";
 import { Kuroshiro, KuroshiroAnalyzerKuromoji } from "kuroshiro-browser";
 
 // Vite's sirv auto-adds Content-Encoding: br for .br files so the browser decompresses them,
@@ -46,8 +46,16 @@ const el = {
   prevSentenceBtn: document.getElementById("prev-sentence-btn"),
   nextSentenceBtn: document.getElementById("next-sentence-btn"),
   showAnswerBtn: document.getElementById("show-answer-btn"),
+  checkAnswerBtn: document.getElementById("check-answer-btn"),
   hintBtn: document.getElementById("hint-btn"),
   resetBtn: document.getElementById("reset-btn"),
+
+  quizAnswerArea: document.getElementById("quiz-answer-area"),
+  readingInput: document.getElementById("quiz-reading-input"),
+  meaningInput: document.getElementById("quiz-meaning-input"),
+  readingFeedback: document.getElementById("reading-feedback"),
+  meaningFeedback: document.getElementById("meaning-feedback"),
+  quizScore: document.getElementById("quiz-score"),
 
   setupArea: document.getElementById("setup-area"),
   mainArea: document.querySelector(".main"),
@@ -125,8 +133,13 @@ function initCustomScrollbar() {
 
   new ResizeObserver(updateCustomScrollbar).observe(el.sentenceScroll);
 
-  new MutationObserver(() => requestAnimationFrame(updateCustomScrollbar))
-    .observe(el.sentenceScroll, { childList: true, subtree: true, characterData: true });
+  new MutationObserver(() =>
+    requestAnimationFrame(updateCustomScrollbar),
+  ).observe(el.sentenceScroll, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
 }
 
 function updateCustomScrollbar() {
@@ -225,10 +238,11 @@ function initEvents() {
   el.prevSentenceBtn.onclick = onPrev;
   el.nextSentenceBtn.onclick = onNext;
   el.showAnswerBtn.onclick = onShowAnswer;
+  el.checkAnswerBtn.onclick = onCheckAnswer;
   el.hintBtn.onclick = onHint;
   el.resetBtn.onclick = onReset;
 
-  document.querySelector(".radio-group").onchange = updateSetupModal;
+  document.querySelector(".type-group").onchange = updateSetupModal;
 
   document.querySelectorAll(".number-input").forEach((input) => {
     input.addEventListener("keydown", (e) => {
@@ -236,6 +250,12 @@ function initEvents() {
     });
     input.addEventListener("input", () => normalize(input));
     input.addEventListener("blur", () => normalize(input));
+  });
+
+  [el.readingInput, el.meaningInput].forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !el.checkAnswerBtn.disabled) onCheckAnswer();
+    });
   });
 }
 
@@ -245,12 +265,13 @@ let session = null;
 
 async function onStart() {
   const type = getPracticeType();
+  const mode = getPracticeMode();
   if (!validateInputs(type)) return;
 
   closeModal("start-modal");
   setLoading(true);
   try {
-    await startPractice(type);
+    await startPractice(type, mode);
   } catch {
     setLoading(false);
     showWarning("Failed to load vocabulary. Check your API token.");
@@ -258,7 +279,7 @@ async function onStart() {
   }
 }
 
-async function startPractice(type) {
+async function startPractice(type, mode) {
   const vocab = await fetchVocab(type);
   const sentences = shuffle(flatten(vocab));
 
@@ -269,12 +290,22 @@ async function startPractice(type) {
     return;
   }
 
-  session = new PracticeSession(sentences);
+  session = new PracticeSession(sentences, mode);
+  applyModeUI(mode);
   toggleMainView(true);
   resetCard();
   await renderSentence(session.current);
   updateProgress();
   updateNavButtons();
+  updateQuizScore();
+}
+
+function applyModeUI(mode) {
+  const isQuiz = mode === "quiz";
+  el.showAnswerBtn.classList.toggle("hidden", isQuiz);
+  el.checkAnswerBtn.classList.toggle("hidden", !isQuiz);
+  el.quizAnswerArea.classList.toggle("hidden", !isQuiz);
+  el.quizScore.classList.toggle("hidden", !isQuiz);
 }
 
 async function onPrev() {
@@ -305,6 +336,40 @@ async function onNext() {
 function onShowAnswer() {
   if (!session) return;
   el.vocab.answer.classList.remove("blurred");
+}
+
+function onCheckAnswer() {
+  if (!session || session.mode !== "quiz") return;
+
+  const vocab = session.current.vocab;
+  const readingCorrect = checkReading(el.readingInput.value, vocab);
+  const meaningCorrect = checkMeaning(el.meaningInput.value, vocab);
+
+  showFeedback(el.readingFeedback, readingCorrect, vocab.readings[0]);
+  showFeedback(el.meaningFeedback, meaningCorrect, vocab.meanings[0]);
+
+  session.recordScore("reading", readingCorrect);
+  session.recordScore("meaning", meaningCorrect);
+  updateQuizScore();
+
+  el.readingInput.disabled = true;
+  el.meaningInput.disabled = true;
+  el.checkAnswerBtn.disabled = true;
+
+  onShowAnswer();
+}
+
+function showFeedback(target, isCorrect, correctAnswer) {
+  target.textContent = isCorrect
+    ? "✓ Correct"
+    : `✗ Correct answer: ${correctAnswer}`;
+  target.className = `quiz-feedback ${isCorrect ? "correct" : "incorrect"}`;
+}
+
+function updateQuizScore() {
+  if (!session || session.mode !== "quiz") return;
+  const { reading, meaning } = session.score;
+  el.quizScore.textContent = `Reading ✓${reading.correct} ✗${reading.incorrect}  ·  Meaning ✓${meaning.correct} ✗${meaning.incorrect}`;
 }
 
 function onHint() {
@@ -377,7 +442,8 @@ async function convertToHiragana(text) {
 async function renderSentence(sentence) {
   el.vocab.jp.textContent = sentence.japanese;
   const kana = await convertToHiragana(sentence.japanese);
-  el.vocab.kana.textContent = kana ?? (kuroshiroFailed ? "(furigana unavailable)" : "");
+  el.vocab.kana.textContent =
+    kana ?? (kuroshiroFailed ? "(furigana unavailable)" : "");
   el.vocab.en.textContent = sentence.english;
 
   el.hint.characters.textContent = sentence.vocab.characters;
@@ -402,6 +468,20 @@ function resetCard() {
   el.hint.types.classList.add("blurred");
   el.hint.types.innerHTML = "";
   el.sentenceScroll.scrollTop = 0;
+
+  if (session?.mode === "quiz") resetQuizInputs();
+}
+
+function resetQuizInputs() {
+  el.readingInput.value = "";
+  el.meaningInput.value = "";
+  el.readingInput.disabled = false;
+  el.meaningInput.disabled = false;
+  el.checkAnswerBtn.disabled = false;
+  el.readingFeedback.textContent = "";
+  el.readingFeedback.className = "quiz-feedback";
+  el.meaningFeedback.textContent = "";
+  el.meaningFeedback.className = "quiz-feedback";
 }
 
 function toggleMainView(showMain = true) {
@@ -447,6 +527,10 @@ function updateSetupModal() {
 
 function getPracticeType() {
   return document.querySelector('input[name="practice-type"]:checked').value;
+}
+
+function getPracticeMode() {
+  return document.querySelector('input[name="practice-mode"]:checked').value;
 }
 
 function validateInputs(type) {
@@ -503,9 +587,18 @@ function saveFontPreference(font) {
 
 // PracticeSession
 class PracticeSession {
-  constructor(sentences) {
+  constructor(sentences, mode) {
     this.sentences = sentences;
+    this.mode = mode;
     this.index = 0;
+    this.score = {
+      reading: { correct: 0, incorrect: 0 },
+      meaning: { correct: 0, incorrect: 0 },
+    };
+  }
+
+  recordScore(field, correct) {
+    this.score[field][correct ? "correct" : "incorrect"]++;
   }
 
   get current() {

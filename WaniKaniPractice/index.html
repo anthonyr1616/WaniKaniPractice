@@ -70,11 +70,27 @@
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
             <span class="progress-counter hidden" id="progress-counter">0 / 0</span>
+            <span class="quiz-score hidden" id="quiz-score"></span>
+        </div>
+
+        <div class="quiz-answer-area hint-card hidden" id="quiz-answer-area">
+            <div class="input-row quiz-input-row">
+                <label for="quiz-reading-input">Reading</label>
+                <input type="text" id="quiz-reading-input" autocomplete="off">
+            </div>
+            <span class="quiz-feedback" id="reading-feedback"></span>
+
+            <div class="input-row quiz-input-row">
+                <label for="quiz-meaning-input">Meaning</label>
+                <input type="text" id="quiz-meaning-input" autocomplete="off">
+            </div>
+            <span class="quiz-feedback" id="meaning-feedback"></span>
         </div>
 
         <div class="btn-grid">
             <button class="btn-hint" id="hint-btn">Show hint</button>
             <button class="btn-answer" id="show-answer-btn">Show answer</button>
+            <button class="btn-answer hidden" id="check-answer-btn">Check answer</button>
             <button class="btn-prev" id="prev-sentence-btn">← Previous</button>
             <button class="btn-next" id="next-sentence-btn">Next sentence →</button>
             <button class="btn-reset" id="reset-btn">Reset</button>
@@ -116,7 +132,21 @@
     <div id="start-modal" class="modal-overlay hidden">
         <div class="modal">
             <h3>New session</h3>
-            <div class="radio-group">
+
+            <p class="modal-section-label">Mode</p>
+            <div class="radio-group mode-group">
+                <label class="radio-label">
+                    <input type="radio" name="practice-mode" value="review" checked>
+                    <span>Review</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="practice-mode" value="quiz">
+                    <span>Quiz</span>
+                </label>
+            </div>
+
+            <p class="modal-section-label">Vocabulary</p>
+            <div class="radio-group type-group">
                 <label class="radio-label">
                     <input type="radio" name="practice-type" value="levels" checked>
                     <span>Levels</span>
