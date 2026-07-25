@@ -14,6 +14,8 @@ import { bind as bindWanakana } from "wanakana";
 import {
   CATEGORIES,
   UNCATEGORIZED_ID,
+  GROUP_GRAMMAR,
+  GROUP_THEME,
   getMatchingCategoryIds,
 } from "./categories.js";
 
@@ -48,7 +50,12 @@ const el = {
   atDate: document.getElementById("at-date"),
   sessionLimit: document.getElementById("session-limit"),
   categorySelectAll: document.getElementById("category-select-all"),
-  categoryCheckboxes: document.getElementById("category-checkboxes"),
+  categoryCheckboxesGrammar: document.getElementById(
+    "category-checkboxes-grammar",
+  ),
+  categoryCheckboxesTheme: document.getElementById(
+    "category-checkboxes-theme",
+  ),
 
   startBtn: document.getElementById("start-btn"),
   setupBtn: document.querySelector(".setup-btn"),
@@ -221,28 +228,36 @@ function initFontPicker() {
 }
 
 function initCategoryPicker() {
-  el.categoryCheckboxes.innerHTML = "";
+  el.categoryCheckboxesGrammar.innerHTML = "";
+  el.categoryCheckboxesTheme.innerHTML = "";
 
-  const options = [
-    ...CATEGORIES.map((cat) => ({ id: cat.id, label: cat.label })),
+  const grammarOptions = CATEGORIES.filter((cat) => cat.group === GROUP_GRAMMAR);
+  const themeOptions = [
+    ...CATEGORIES.filter((cat) => cat.group === GROUP_THEME),
     { id: UNCATEGORIZED_ID, label: "Uncategorized" },
   ];
 
-  options.forEach(({ id, label }) => {
-    const wrapper = document.createElement("label");
-    wrapper.className = "radio-label";
+  function renderOptions(container, options) {
+    options.forEach(({ id, label }) => {
+      const wrapper = document.createElement("label");
+      wrapper.className = "radio-label";
 
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.className = "category-checkbox";
-    input.value = id;
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.className = "category-checkbox";
+      input.value = id;
+      input.checked = true;
 
-    const span = document.createElement("span");
-    span.textContent = label;
+      const span = document.createElement("span");
+      span.textContent = label;
 
-    wrapper.append(input, span);
-    el.categoryCheckboxes.appendChild(wrapper);
-  });
+      wrapper.append(input, span);
+      container.appendChild(wrapper);
+    });
+  }
+
+  renderOptions(el.categoryCheckboxesGrammar, grammarOptions);
+  renderOptions(el.categoryCheckboxesTheme, themeOptions);
 
   el.categorySelectAll.addEventListener("change", () => {
     document.querySelectorAll(".category-checkbox").forEach((cb) => {
@@ -250,10 +265,12 @@ function initCategoryPicker() {
     });
   });
 
-  el.categoryCheckboxes.addEventListener("change", () => {
+  const onCategoryChange = () => {
     const boxes = document.querySelectorAll(".category-checkbox");
     el.categorySelectAll.checked = Array.from(boxes).every((cb) => cb.checked);
-  });
+  };
+  el.categoryCheckboxesGrammar.addEventListener("change", onCategoryChange);
+  el.categoryCheckboxesTheme.addEventListener("change", onCategoryChange);
 }
 
 function initKeyboard() {

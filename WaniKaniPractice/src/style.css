@@ -555,6 +555,8 @@ body {
 .modal {
   width: 100%;
   max-width: 400px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
   background: var(--color-bg-card);
   border-radius: 16px;
   padding: 24px;
@@ -735,7 +737,11 @@ body {
 .category-grid {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .category-grid .radio-label {
