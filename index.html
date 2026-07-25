@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; connect-src 'self' https://api.wanikani.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self'; media-src https://files.wanikani.com; base-uri 'self'; form-action 'none';" />
     <link rel="icon" type="image/svg+xml" href="/WaniKaniPractice/assets/favicon-ZbR8l3if.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,8 +13,8 @@
         rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WaniKani Vocab Practice</title>
-  <script type="module" crossorigin src="/WaniKaniPractice/assets/index-CE3DpwDA.js"></script>
-  <link rel="stylesheet" crossorigin href="/WaniKaniPractice/assets/index-DRW9r-9q.css">
+  <script type="module" crossorigin src="/WaniKaniPractice/assets/index-D1xAqpBz.js"></script>
+  <link rel="stylesheet" crossorigin href="/WaniKaniPractice/assets/index-Bx5WBLx8.css">
 </head>
 
 <body>
@@ -39,7 +41,10 @@
 
         <div class="hint-card" id="hint-card">
             <div class="hint-card-header">
-                <span class="vocab-char" id="hint-characters"></span>
+                <div class="vocab-char-row">
+                    <span class="vocab-char" id="hint-characters"></span>
+                    <button class="audio-btn hidden" id="audio-btn" type="button" aria-label="Play pronunciation" title="Play pronunciation">🔊</button>
+                </div>
                 <div id="hint-types"></div>
             </div>
             <div class="hint-row">
@@ -69,11 +74,27 @@
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
             <span class="progress-counter hidden" id="progress-counter">0 / 0</span>
+            <span class="quiz-score hidden" id="quiz-score"></span>
+        </div>
+
+        <div class="quiz-answer-area hint-card hidden" id="quiz-answer-area">
+            <div class="input-row quiz-input-row">
+                <label for="quiz-reading-input">Reading</label>
+                <input type="text" id="quiz-reading-input" autocomplete="off">
+            </div>
+            <span class="quiz-feedback" id="reading-feedback"></span>
+
+            <div class="input-row quiz-input-row">
+                <label for="quiz-meaning-input">Meaning</label>
+                <input type="text" id="quiz-meaning-input" autocomplete="off">
+            </div>
+            <span class="quiz-feedback" id="meaning-feedback"></span>
         </div>
 
         <div class="btn-grid">
             <button class="btn-hint" id="hint-btn">Show hint</button>
             <button class="btn-answer" id="show-answer-btn">Show answer</button>
+            <button class="btn-answer hidden" id="check-answer-btn">Check answer</button>
             <button class="btn-prev" id="prev-sentence-btn">← Previous</button>
             <button class="btn-next" id="next-sentence-btn">Next sentence →</button>
             <button class="btn-reset" id="reset-btn">Reset</button>
@@ -115,7 +136,21 @@
     <div id="start-modal" class="modal-overlay hidden">
         <div class="modal">
             <h3>New session</h3>
-            <div class="radio-group">
+
+            <p class="modal-section-label">Mode</p>
+            <div class="radio-group mode-group">
+                <label class="radio-label">
+                    <input type="radio" name="practice-mode" value="review" checked>
+                    <span>Review</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="practice-mode" value="quiz">
+                    <span>Quiz</span>
+                </label>
+            </div>
+
+            <p class="modal-section-label">Vocabulary</p>
+            <div class="radio-group type-group">
                 <label class="radio-label">
                     <input type="radio" name="practice-type" value="levels" checked>
                     <span>Levels</span>
@@ -151,6 +186,27 @@
                     <input type="date" id="at-date" name="at-date" />
                 </div>
             </div>
+
+            <p class="modal-section-label">Limit</p>
+            <div class="input-row">
+                <label for="session-limit">Max items (0 = no limit)</label>
+                <input id="session-limit" class="number-input" type="number" min="0" step="1" value="25">
+            </div>
+
+            <details class="advanced-section">
+                <summary>Advanced</summary>
+
+                <label class="checkbox-label select-all-label">
+                    <input type="checkbox" id="category-select-all" checked>
+                    <span>Select all categories</span>
+                </label>
+
+                <p class="modal-section-label">Grammar</p>
+                <div class="category-grid" id="category-checkboxes-grammar"></div>
+
+                <p class="modal-section-label">Themes</p>
+                <div class="category-grid" id="category-checkboxes-theme"></div>
+            </details>
 
             <button id="start-btn" class="btn-primary">Start practice</button>
         </div>
