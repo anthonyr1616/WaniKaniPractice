@@ -42,6 +42,8 @@ async function fetchAllPages(endpoint, params = {}) {
 }
 
 export async function getVocabByLevels(levels) {
+  if (!levels.length) return [];
+
   const items = await fetchAllPages("subjects", {
     types: "vocabulary",
     levels: levels.join(","),
