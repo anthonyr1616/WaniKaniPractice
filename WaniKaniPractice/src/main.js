@@ -11,6 +11,11 @@ import {
 import { range, normalize, checkReading, checkMeaning } from "./utility.js";
 import { Kuroshiro, KuroshiroAnalyzerKuromoji } from "kuroshiro-browser";
 import { bind as bindWanakana } from "wanakana";
+import {
+  CATEGORIES,
+  UNCATEGORIZED_ID,
+  getMatchingCategoryIds,
+} from "./categories.js";
 
 // Vite's sirv auto-adds Content-Encoding: br for .br files so the browser decompresses them,
 // but GitHub Pages serves them as raw bytes. Pre-decompressed .dat.raw copies are created
@@ -42,6 +47,8 @@ const el = {
   toLevel: document.getElementById("to-level"),
   atDate: document.getElementById("at-date"),
   sessionLimit: document.getElementById("session-limit"),
+  categorySelectAll: document.getElementById("category-select-all"),
+  categoryCheckboxes: document.getElementById("category-checkboxes"),
 
   startBtn: document.getElementById("start-btn"),
   setupBtn: document.querySelector(".setup-btn"),
@@ -128,6 +135,7 @@ initToken();
 initDateInput();
 initModalOverlay();
 initFontPicker();
+initCategoryPicker();
 initEvents();
 initKeyboard();
 initCustomScrollbar();
@@ -210,6 +218,42 @@ function initFontPicker() {
     el.fontSelect.value = saved;
     if (saved !== "Random") applyFont(saved);
   }
+}
+
+function initCategoryPicker() {
+  el.categoryCheckboxes.innerHTML = "";
+
+  const options = [
+    ...CATEGORIES.map((cat) => ({ id: cat.id, label: cat.label })),
+    { id: UNCATEGORIZED_ID, label: "Uncategorized" },
+  ];
+
+  options.forEach(({ id, label }) => {
+    const wrapper = document.createElement("label");
+    wrapper.className = "radio-label";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.className = "category-checkbox";
+    input.value = id;
+
+    const span = document.createElement("span");
+    span.textContent = label;
+
+    wrapper.append(input, span);
+    el.categoryCheckboxes.appendChild(wrapper);
+  });
+
+  el.categorySelectAll.addEventListener("change", () => {
+    document.querySelectorAll(".category-checkbox").forEach((cb) => {
+      cb.checked = el.categorySelectAll.checked;
+    });
+  });
+
+  el.categoryCheckboxes.addEventListener("change", () => {
+    const boxes = document.querySelectorAll(".category-checkbox");
+    el.categorySelectAll.checked = Array.from(boxes).every((cb) => cb.checked);
+  });
 }
 
 function initKeyboard() {
@@ -340,7 +384,8 @@ async function onStart() {
 
 async function startPractice(type, mode) {
   const vocab = await fetchVocab(type);
-  const shuffled = shuffle(flatten(vocab));
+  const filteredVocab = filterByCategories(vocab);
+  const shuffled = shuffle(flatten(filteredVocab));
 
   const limit = +el.sessionLimit.value;
   const sentences = limit > 0 ? shuffled.slice(0, limit) : shuffled;
@@ -482,6 +527,23 @@ async function fetchVocab(type) {
   }
 
   return getCriticalVocab();
+}
+
+function getSelectedCategoryIds() {
+  return Array.from(
+    document.querySelectorAll(".category-checkbox:checked"),
+  ).map((cb) => cb.value);
+}
+
+function filterByCategories(vocab) {
+  const selected = getSelectedCategoryIds();
+  if (!selected.length) return vocab;
+
+  return vocab.filter((v) => {
+    const matches = getMatchingCategoryIds(v);
+    if (!matches.length) return selected.includes(UNCATEGORIZED_ID);
+    return matches.some((id) => selected.includes(id));
+  });
 }
 
 // Transformation helpers

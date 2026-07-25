@@ -81,13 +81,13 @@ export async function getVocabByLevels(levels) {
 
   const queryKey =
     QUERY_CACHE_PREFIX +
-    "levels:" +
+    "levels2:" +
     [...levels].sort((a, b) => a - b).join(",");
 
   let items = readCache(queryKey);
   if (!items) {
     items = await fetchAllPages("subjects", {
-      types: "vocabulary",
+      types: "vocabulary,kana_vocabulary",
       levels: levels.join(","),
     });
     writeCache(queryKey, items);
@@ -99,7 +99,7 @@ export async function getVocabByLevels(levels) {
 
 export async function getVocabAvailableAtDate(after, before) {
   const assignments = await fetchAllPages("assignments", {
-    subject_types: "vocabulary",
+    subject_types: "vocabulary,kana_vocabulary",
     available_after: after.toISOString(),
     available_before: before.toISOString(),
     burned: false,
@@ -111,7 +111,7 @@ export async function getVocabAvailableAtDate(after, before) {
 
 export async function getCriticalVocab() {
   const stats = await fetchAllPages("review_statistics", {
-    subject_types: "vocabulary",
+    subject_types: "vocabulary,kana_vocabulary",
     percentages_less_than: 75,
   });
 
@@ -140,7 +140,7 @@ export async function getVocabByIds(ids) {
   const pages = await Promise.all(
     chunks.map((chunk) =>
       fetchAllPages("subjects", {
-        types: "vocabulary",
+        types: "vocabulary,kana_vocabulary",
         ids: chunk.join(","),
       }),
     ),
@@ -163,7 +163,11 @@ export class Vocab {
     this.characters = data.characters;
 
     this.meanings = data.meanings.map((m) => m.meaning);
-    this.readings = data.readings.map((r) => r.reading);
+    // kana_vocabulary subjects have no "readings" field — the characters are
+    // already kana, so they're their own reading.
+    this.readings = data.readings
+      ? data.readings.map((r) => r.reading)
+      : [data.characters];
     this.partsOfSpeech = data.parts_of_speech;
 
     this.audioUrl =

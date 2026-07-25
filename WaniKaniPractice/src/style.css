@@ -686,6 +686,56 @@ body {
   margin-top: 0;
 }
 
+/* Advanced / categories  */
+
+.advanced-section {
+  margin-top: 12px;
+}
+
+.advanced-section summary {
+  cursor: pointer;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-label);
+  list-style: none;
+}
+
+.advanced-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-section summary::before {
+  content: "▸ ";
+}
+
+.advanced-section[open] summary::before {
+  content: "▾ ";
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.select-all-label {
+  margin: 10px 0 8px;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.category-grid .radio-label {
+  flex: 0 1 auto;
+}
+
 /* Start modal inputs  */
 
 .levels-range,
