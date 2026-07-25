@@ -110,6 +110,10 @@ export class Vocab {
     this.readings = data.readings.map((r) => r.reading);
     this.partsOfSpeech = data.parts_of_speech;
 
+    this.audioUrl =
+      data.pronunciation_audios?.find((a) => a.content_type === "audio/mpeg")
+        ?.url ?? null;
+
     this.contextSentences = data.context_sentences.map((s) => ({
       english: s.en,
       japanese: s.ja,

@@ -80,6 +80,8 @@ const el = {
     types: document.getElementById("hint-types"),
   },
 
+  audioBtn: document.getElementById("audio-btn"),
+
   levelsRange: document.querySelector("#start-modal .levels-range"),
   daysRange: document.querySelector("#start-modal .days-range"),
 
@@ -241,6 +243,7 @@ function initEvents() {
   el.checkAnswerBtn.onclick = onCheckAnswer;
   el.hintBtn.onclick = onHint;
   el.resetBtn.onclick = onReset;
+  el.audioBtn.onclick = onPlayAudio;
 
   document.querySelector(".type-group").onchange = updateSetupModal;
 
@@ -377,6 +380,21 @@ function onHint() {
   el.hint.readings.classList.remove("blurred");
   el.hint.meanings.classList.remove("blurred");
   el.hint.types.classList.remove("blurred");
+  el.audioBtn.disabled = false;
+}
+
+let currentAudio = null;
+
+function onPlayAudio() {
+  const audioUrl = session?.current?.vocab.audioUrl;
+  if (!audioUrl) return;
+
+  currentAudio?.pause();
+  currentAudio = new Audio(audioUrl);
+  currentAudio.addEventListener("error", () =>
+    el.audioBtn.classList.add("hidden"),
+  );
+  currentAudio.play().catch(() => el.audioBtn.classList.add("hidden"));
 }
 
 function onReset() {
@@ -449,6 +467,7 @@ async function renderSentence(sentence) {
   el.hint.characters.textContent = sentence.vocab.characters;
   el.hint.readings.textContent = sentence.vocab.readings.join(", ");
   el.hint.meanings.textContent = sentence.vocab.meanings.join(", ");
+  el.audioBtn.classList.toggle("hidden", !sentence.vocab.audioUrl);
 
   el.hint.types.innerHTML = "";
   for (const part of sentence.vocab.partsOfSpeech) {
@@ -462,11 +481,13 @@ async function renderSentence(sentence) {
 }
 
 function resetCard() {
+  currentAudio?.pause();
   el.vocab.answer.classList.add("blurred");
   el.hint.readings.classList.add("blurred");
   el.hint.meanings.classList.add("blurred");
   el.hint.types.classList.add("blurred");
   el.hint.types.innerHTML = "";
+  el.audioBtn.disabled = true;
   el.sentenceScroll.scrollTop = 0;
 
   if (session?.mode === "quiz") resetQuizInputs();

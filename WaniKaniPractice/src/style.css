@@ -254,10 +254,46 @@ body {
   justify-content: space-between;
 }
 
+.vocab-char-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .vocab-char {
   font-size: 3rem;
   font-weight: 500;
   color: var(--color-text-primary);
+}
+
+.audio-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: transform 0.15s ease;
+}
+
+.audio-btn:hover {
+  transform: scale(1.15);
+}
+
+.audio-btn:active {
+  transform: scale(0.95);
+}
+
+.audio-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  filter: blur(2px);
+}
+
+.audio-btn:disabled:hover,
+.audio-btn:disabled:active {
+  transform: none;
 }
 
 .part-of-speech-badge {
@@ -348,7 +384,7 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  justify-content: center;
+  justify-content: safe center;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
