@@ -10,6 +10,7 @@ import {
 
 import { range, normalize, checkReading, checkMeaning } from "./utility.js";
 import { Kuroshiro, KuroshiroAnalyzerKuromoji } from "kuroshiro-browser";
+import { bind as bindWanakana } from "wanakana";
 
 // Vite's sirv auto-adds Content-Encoding: br for .br files so the browser decompresses them,
 // but GitHub Pages serves them as raw bytes. Pre-decompressed .dat.raw copies are created
@@ -260,6 +261,8 @@ function initEvents() {
       if (e.key === "Enter" && !el.checkAnswerBtn.disabled) onCheckAnswer();
     });
   });
+
+  bindWanakana(el.readingInput, { IMEMode: true });
 }
 
 // Practice logic

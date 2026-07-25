@@ -22,6 +22,7 @@
     "vite": "^8.0.1"
   },
   "dependencies": {
-    "kuroshiro-browser": "^0.1.0"
+    "kuroshiro-browser": "^0.1.0",
+    "wanakana": "^5.3.1"
   }
 }

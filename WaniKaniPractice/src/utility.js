@@ -1,5 +1,7 @@
+import { toHiragana } from "wanakana";
+
 function range(start, end) {
-  if (start > end) return [];  
+  if (start > end) return [];
   if (isNaN(start) || isNaN(end)) return [];
   return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }
@@ -13,12 +15,15 @@ function normalize(input, min = 1, max = 60) {
 }
 
 function normalizeReading(str) {
-  return str.trim().replace(/\s+/g, "");
+  return toHiragana(str.trim().replace(/\s+/g, ""));
 }
 
 function checkReading(input, vocab) {
   const normalized = normalizeReading(input);
-  return !!normalized && vocab.readings.some((r) => normalizeReading(r) === normalized);
+  return (
+    !!normalized &&
+    vocab.readings.some((r) => normalizeReading(r) === normalized)
+  );
 }
 
 function normalizeMeaning(str) {
@@ -32,7 +37,10 @@ function normalizeMeaning(str) {
 
 function checkMeaning(input, vocab) {
   const normalized = normalizeMeaning(input);
-  return !!normalized && vocab.meanings.some((m) => normalizeMeaning(m) === normalized);
+  return (
+    !!normalized &&
+    vocab.meanings.some((m) => normalizeMeaning(m) === normalized)
+  );
 }
 
 export { range, normalize, checkReading, checkMeaning };
