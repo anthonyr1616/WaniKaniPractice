@@ -21,6 +21,41 @@ async function authFetch(url) {
   return response.json();
 }
 
+// Subject content (characters, readings, meanings, context sentences) is
+// effectively static, so it's safe to cache client-side for a while — this
+// cuts repeat load time and API calls for the same levels/vocab.
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const SUBJECT_CACHE_PREFIX = "wkSubjectCache:";
+const QUERY_CACHE_PREFIX = "wkQueryCache:";
+
+function readCache(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { timestamp, value } = JSON.parse(raw);
+    if (Date.now() - timestamp > CACHE_TTL_MS) return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ timestamp: Date.now(), value }));
+  } catch {
+    // Storage full or unavailable — caching is a nice-to-have, skip silently.
+  }
+}
+
+function getCachedSubject(id) {
+  return readCache(SUBJECT_CACHE_PREFIX + id);
+}
+
+function cacheSubjects(items) {
+  items.forEach((item) => writeCache(SUBJECT_CACHE_PREFIX + item.id, item));
+}
+
 async function fetchAllPages(endpoint, params = {}) {
   const url = new URL(`${BASE_URL}/${endpoint}`);
   Object.entries(params).forEach(([key, value]) => {
@@ -44,10 +79,20 @@ async function fetchAllPages(endpoint, params = {}) {
 export async function getVocabByLevels(levels) {
   if (!levels.length) return [];
 
-  const items = await fetchAllPages("subjects", {
-    types: "vocabulary",
-    levels: levels.join(","),
-  });
+  const queryKey =
+    QUERY_CACHE_PREFIX +
+    "levels:" +
+    [...levels].sort((a, b) => a - b).join(",");
+
+  let items = readCache(queryKey);
+  if (!items) {
+    items = await fetchAllPages("subjects", {
+      types: "vocabulary",
+      levels: levels.join(","),
+    });
+    writeCache(queryKey, items);
+    cacheSubjects(items);
+  }
 
   return mapToVocab(items);
 }
@@ -79,9 +124,17 @@ const ID_CHUNK_SIZE = 500;
 export async function getVocabByIds(ids) {
   if (!ids.length) return [];
 
+  const cached = [];
+  const missingIds = [];
+  for (const id of ids) {
+    const item = getCachedSubject(id);
+    if (item) cached.push(item);
+    else missingIds.push(id);
+  }
+
   const chunks = [];
-  for (let i = 0; i < ids.length; i += ID_CHUNK_SIZE) {
-    chunks.push(ids.slice(i, i + ID_CHUNK_SIZE));
+  for (let i = 0; i < missingIds.length; i += ID_CHUNK_SIZE) {
+    chunks.push(missingIds.slice(i, i + ID_CHUNK_SIZE));
   }
 
   const pages = await Promise.all(
@@ -93,7 +146,10 @@ export async function getVocabByIds(ids) {
     ),
   );
 
-  return mapToVocab(pages.flat());
+  const fetched = pages.flat();
+  cacheSubjects(fetched);
+
+  return mapToVocab([...cached, ...fetched]);
 }
 
 function mapToVocab(items) {

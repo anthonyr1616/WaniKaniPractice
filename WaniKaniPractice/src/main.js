@@ -269,6 +269,55 @@ function initEvents() {
 
 let session = null;
 
+const SESSION_STORAGE_KEY = "activeSession";
+
+function saveSession() {
+  if (!session) return;
+  try {
+    localStorage.setItem(
+      SESSION_STORAGE_KEY,
+      JSON.stringify({
+        sentences: session.sentences,
+        mode: session.mode,
+        index: session.index,
+        score: session.score,
+      }),
+    );
+  } catch {
+    // Storage full or unavailable — persistence is a nice-to-have, skip silently.
+  }
+}
+
+function clearSavedSession() {
+  localStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+function loadSavedSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function restoreSession() {
+  const saved = loadSavedSession();
+  if (!saved?.sentences?.length) return;
+
+  session = new PracticeSession(saved.sentences, saved.mode);
+  session.index = saved.index ?? 0;
+  session.score = saved.score ?? session.score;
+
+  applyModeUI(session.mode);
+  toggleMainView(true);
+  resetCard();
+  await renderSentence(session.current);
+  updateProgress();
+  updateNavButtons();
+  updateQuizScore();
+}
+
 async function onStart() {
   const type = getPracticeType();
   const mode = getPracticeMode();
@@ -304,6 +353,7 @@ async function startPractice(type, mode) {
   updateProgress();
   updateNavButtons();
   updateQuizScore();
+  saveSession();
 }
 
 function applyModeUI(mode) {
@@ -322,6 +372,7 @@ async function onPrev() {
   await renderSentence(session.current);
   updateProgress();
   updateNavButtons();
+  saveSession();
 }
 
 async function onNext() {
@@ -337,6 +388,7 @@ async function onNext() {
   await renderSentence(session.current);
   updateProgress();
   updateNavButtons();
+  saveSession();
 }
 
 function onShowAnswer() {
@@ -357,6 +409,7 @@ function onCheckAnswer() {
   session.recordScore("reading", readingCorrect);
   session.recordScore("meaning", meaningCorrect);
   updateQuizScore();
+  saveSession();
 
   el.readingInput.disabled = true;
   el.meaningInput.disabled = true;
@@ -402,6 +455,7 @@ function onPlayAudio() {
 
 function onReset() {
   session = null;
+  clearSavedSession();
   setLoading(false);
   toggleMainView(false);
 }
@@ -645,6 +699,8 @@ class PracticeSession {
     if (this.hasNext) this.index++;
   }
 }
+
+restoreSession();
 
 // Theme helpers
 
