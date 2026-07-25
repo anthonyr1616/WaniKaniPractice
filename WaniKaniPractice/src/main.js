@@ -41,6 +41,7 @@ const el = {
   fromLevel: document.getElementById("from-level"),
   toLevel: document.getElementById("to-level"),
   atDate: document.getElementById("at-date"),
+  sessionLimit: document.getElementById("session-limit"),
 
   startBtn: document.getElementById("start-btn"),
   setupBtn: document.querySelector(".setup-btn"),
@@ -249,11 +250,14 @@ function initEvents() {
   document.querySelector(".type-group").onchange = updateSetupModal;
 
   document.querySelectorAll(".number-input").forEach((input) => {
+    const min = input.hasAttribute("min") ? +input.min : 1;
+    const max = input.hasAttribute("max") ? +input.max : Infinity;
+
     input.addEventListener("keydown", (e) => {
       if ([".", ","].includes(e.key)) e.preventDefault();
     });
-    input.addEventListener("input", () => normalize(input));
-    input.addEventListener("blur", () => normalize(input));
+    input.addEventListener("input", () => normalize(input, min, max));
+    input.addEventListener("blur", () => normalize(input, min, max));
   });
 
   [el.readingInput, el.meaningInput].forEach((input) => {
@@ -336,7 +340,10 @@ async function onStart() {
 
 async function startPractice(type, mode) {
   const vocab = await fetchVocab(type);
-  const sentences = shuffle(flatten(vocab));
+  const shuffled = shuffle(flatten(vocab));
+
+  const limit = +el.sessionLimit.value;
+  const sentences = limit > 0 ? shuffled.slice(0, limit) : shuffled;
 
   if (!sentences.length) {
     setLoading(false);

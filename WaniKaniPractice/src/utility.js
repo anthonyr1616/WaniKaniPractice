@@ -8,7 +8,7 @@ function range(start, end) {
 
 function normalize(input, min = 1, max = 60) {
   let value = Number(input.value);
-  if (isNaN(value)) value = 1;
+  if (isNaN(value)) value = min;
   value = Math.floor(value);
   value = Math.max(min, Math.min(max, value));
   input.value = value;
