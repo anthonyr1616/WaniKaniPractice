@@ -596,6 +596,12 @@ async function renderSentence(sentence) {
   el.audioBtn.classList.toggle("hidden", !sentence.vocab.audioUrl);
 
   el.hint.types.innerHTML = "";
+
+  const levelBadge = document.createElement("span");
+  levelBadge.className = "part-of-speech-badge level-badge";
+  levelBadge.textContent = `Lvl ${sentence.vocab.level}`;
+  el.hint.types.appendChild(levelBadge);
+
   for (const part of sentence.vocab.partsOfSpeech) {
     const badge = document.createElement("span");
     badge.className = "part-of-speech-badge";

@@ -306,6 +306,12 @@ body {
   text-align: center;
 }
 
+.level-badge {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-text);
+  font-weight: 500;
+}
+
 #hint-types {
   display: flex;
   gap: 0.2rem;
