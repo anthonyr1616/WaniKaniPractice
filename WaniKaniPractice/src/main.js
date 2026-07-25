@@ -359,11 +359,17 @@ function shuffle(arr) {
 
 // Rendering
 
+let kuroshiroFailed = false;
+
 async function convertToHiragana(text) {
   try {
     await kuroshiroReady;
     return await kuroshiro.convert(text, { to: "hiragana" });
-  } catch {
+  } catch (err) {
+    if (!kuroshiroFailed) {
+      kuroshiroFailed = true;
+      console.error("Furigana conversion unavailable:", err);
+    }
     return null;
   }
 }
@@ -371,7 +377,7 @@ async function convertToHiragana(text) {
 async function renderSentence(sentence) {
   el.vocab.jp.textContent = sentence.japanese;
   const kana = await convertToHiragana(sentence.japanese);
-  el.vocab.kana.textContent = kana ?? "";
+  el.vocab.kana.textContent = kana ?? (kuroshiroFailed ? "(furigana unavailable)" : "");
   el.vocab.en.textContent = sentence.english;
 
   el.hint.characters.textContent = sentence.vocab.characters;
