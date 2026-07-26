@@ -258,12 +258,14 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .vocab-char {
   font-size: 3rem;
   font-weight: 500;
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .audio-btn {
@@ -316,8 +318,10 @@ body {
   display: flex;
   gap: 0.2rem;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .hint-row {
@@ -546,16 +550,18 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: safe center;
+  justify-content: safe center;
   z-index: 1000;
   padding: 1rem;
+  overflow-y: auto;
 }
 
 .modal {
   width: 100%;
   max-width: 400px;
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
   background: var(--color-bg-card);
   border-radius: 16px;
